@@ -1,0 +1,23 @@
+name: agent-evals check
+
+on:
+  workflow_call:
+    inputs:
+      version:
+        description: agent-evals git ref to run
+        type: string
+        default: main
+      working-directory:
+        description: directory holding evals/config.yaml
+        type: string
+        default: .
+
+jobs:
+  evals-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: cachix/install-nix-action@13d8dd58da0234aa297dedd986986ccb8e7f3e24
+      - name: agent-evals check
+        working-directory: ${{ inputs.working-directory }}
+        run: nix run "github:Castrozan/agent-evals/${{ inputs.version }}" -- check

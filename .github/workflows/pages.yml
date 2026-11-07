@@ -1,0 +1,37 @@
+name: agent-evals pages
+
+on:
+  workflow_call:
+    inputs:
+      version:
+        description: agent-evals git ref to run
+        type: string
+        default: main
+      working-directory:
+        description: directory holding evals/config.yaml
+        type: string
+        default: .
+
+jobs:
+  evals-pages:
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: cachix/install-nix-action@13d8dd58da0234aa297dedd986986ccb8e7f3e24
+      - name: agent-evals paginas
+        id: publish
+        working-directory: ${{ inputs.working-directory }}
+        run: |
+          nix run "github:Castrozan/agent-evals/${{ inputs.version }}" -- paginas
+          echo "directory=$(nix run "github:Castrozan/agent-evals/${{ inputs.version }}" -- paginas --diretorio)" >> "$GITHUB_OUTPUT"
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: ${{ inputs.working-directory }}/${{ steps.publish.outputs.directory }}
+      - id: deployment
+        uses: actions/deploy-pages@v4
