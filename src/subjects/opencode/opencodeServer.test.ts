@@ -2,8 +2,10 @@ import { existsSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
+import { inheritedEnvironment } from "../inheritedEnvironment.js";
 import { findFreePort, startOpencodeServer } from "./opencodeServer.js";
 
+const environment = inheritedEnvironment({ environment: {}, removedEnvironment: [] });
 const fakeCommand = path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "__fixtures__", "fakeOpencode.mjs");
 
 describe("opencode server", () => {
@@ -17,7 +19,7 @@ describe("opencode server", () => {
     const server = await startOpencodeServer({
       directory: process.cwd(),
       configuration: {},
-      environment: {},
+      environment,
       signal: controller.signal,
       command: fakeCommand,
     });
@@ -30,7 +32,7 @@ describe("opencode server", () => {
       startOpencodeServer({
         directory: process.cwd(),
         configuration: {},
-        environment: {},
+        environment,
         signal: new AbortController().signal,
         command: "false",
       }),
