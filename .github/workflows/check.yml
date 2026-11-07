@@ -11,10 +11,16 @@ on:
         description: directory holding evals/config.yaml
         type: string
         default: .
+      config:
+        description: config file path when it is not evals/config.yaml at the repository root
+        type: string
+        default: ""
 
 jobs:
   evals-check:
     runs-on: ubuntu-latest
+    env:
+      AGENT_EVALS_CONFIG: ${{ inputs.config }}
     steps:
       - uses: actions/checkout@v4
       - uses: cachix/install-nix-action@13d8dd58da0234aa297dedd986986ccb8e7f3e24

@@ -8,8 +8,8 @@ import { projectConfigSchema, toProjectConfig } from "./projectConfigSchema.js";
 import { CONFIG_RELATIVE_PATH } from "./repositoryRoot.js";
 import { toConfigurationError } from "./zodIssues.js";
 
-export function loadProjectConfig(root: string): ProjectConfig {
-  const configPath = path.join(root, CONFIG_RELATIVE_PATH);
+export function loadProjectConfig(root: string, configPath = path.join(root, CONFIG_RELATIVE_PATH)): ProjectConfig {
+  const configLabel = path.relative(root, configPath);
   const fallbackName = path.basename(root);
   const source = fs.existsSync(configPath) ? fs.readFileSync(configPath, "utf8") : undefined;
   let document: unknown = {};
@@ -17,16 +17,16 @@ export function loadProjectConfig(root: string): ProjectConfig {
     try {
       document = parse(source) ?? {};
     } catch (error) {
-      throw new ConfigurationError(`${CONFIG_RELATIVE_PATH}: YAML inválido: ${(error as Error).message}`);
+      throw new ConfigurationError(`${configLabel}: YAML inválido: ${(error as Error).message}`);
     }
   }
   if (typeof document !== "object" || Array.isArray(document) || document === null) {
-    throw new ConfigurationError(`${CONFIG_RELATIVE_PATH}: o conteúdo deve ser um mapa de chaves`);
+    throw new ConfigurationError(`${configLabel}: o conteúdo deve ser um mapa de chaves`);
   }
-  const normalized = normalizeValue(document, projectConfigShape, [], CONFIG_RELATIVE_PATH);
+  const normalized = normalizeValue(document, projectConfigShape, [], configLabel);
   const result = projectConfigSchema.safeParse(normalized);
   if (!result.success) {
-    throw toConfigurationError(result.error, projectConfigShape, CONFIG_RELATIVE_PATH);
+    throw toConfigurationError(result.error, projectConfigShape, configLabel);
   }
   return toProjectConfig(result.data, root, source === undefined ? undefined : configPath, fallbackName);
 }

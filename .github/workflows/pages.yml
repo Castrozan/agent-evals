@@ -11,10 +11,16 @@ on:
         description: directory holding evals/config.yaml
         type: string
         default: .
+      config:
+        description: config file path when it is not evals/config.yaml at the repository root
+        type: string
+        default: ""
 
 jobs:
   evals-pages:
     runs-on: ubuntu-latest
+    env:
+      AGENT_EVALS_CONFIG: ${{ inputs.config }}
     permissions:
       pages: write
       id-token: write

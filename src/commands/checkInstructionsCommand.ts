@@ -1,6 +1,6 @@
 import path from "node:path";
 import type { Command } from "commander";
-import { findRepositoryRoot, loadProjectConfig } from "../configuration/index.js";
+import { loadProjectConfig, resolveProjectLocation } from "../configuration/index.js";
 import { discoverArtifacts } from "../discovery/index.js";
 import { checkInstructions, formatInstructionFailure } from "../instructions/index.js";
 
@@ -9,7 +9,8 @@ export function registerCheckInstructionsCommand(program: Command): void {
     .command("check-instructions")
     .description("verifica autoria e links das instruções descobertas, sem casos, baseline ou modelo")
     .action(() => {
-      const config = loadProjectConfig(findRepositoryRoot(process.cwd()));
+      const { root, configPath } = resolveProjectLocation(process.cwd());
+      const config = loadProjectConfig(root, configPath);
       const failures = checkInstructions(config);
       for (const failure of failures) process.stdout.write(`${formatInstructionFailure(failure)}\n`);
       if (failures.length > 0) {

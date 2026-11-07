@@ -23,3 +23,29 @@ export function findRepositoryRoot(startDirectory: string): string {
   }
   return root;
 }
+
+export const CONFIG_ENVIRONMENT_VARIABLE = "AGENT_EVALS_CONFIG";
+
+export interface ProjectLocation {
+  root: string;
+  configPath: string;
+}
+
+export function resolveProjectLocation(
+  startDirectory: string,
+  environment: NodeJS.ProcessEnv = process.env,
+): ProjectLocation {
+  const declaredConfig = environment[CONFIG_ENVIRONMENT_VARIABLE];
+  if (!declaredConfig) {
+    const root = findRepositoryRoot(startDirectory);
+    return { root, configPath: path.join(root, CONFIG_RELATIVE_PATH) };
+  }
+  const configPath = path.resolve(startDirectory, declaredConfig);
+  const root = nearestAncestor(path.dirname(configPath), ".git");
+  if (root === undefined) {
+    throw new ConfigurationError(
+      `${CONFIG_ENVIRONMENT_VARIABLE} aponta ${configPath}, que não está num repositório git`,
+    );
+  }
+  return { root, configPath };
+}
