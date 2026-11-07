@@ -44,6 +44,7 @@ export function baselineEntry(
     name,
     level: "unit",
     type: "instruction",
+    heldOut: false,
     fingerprint: "f",
     samples,
     passes,

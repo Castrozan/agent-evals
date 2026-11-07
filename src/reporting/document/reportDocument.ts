@@ -16,6 +16,7 @@ export interface ReportCase {
   name: string;
   level: CaseLevel;
   type: CaseType;
+  instruction?: string;
   heldOut: boolean;
   inherited: boolean;
   measuredAt: string;

@@ -16,6 +16,7 @@ function sumCases(cases: ReportCase[]) {
 
 export function groupByCategory(cases: ReportCase[], coverage: CoverageEntry[]): ReportCategory[] {
   const artifactByCaseKey = new Map<string, CoverageEntry["artifact"]>();
+  const artifactByPath = new Map(coverage.map((entry) => [entry.artifact.path, entry.artifact]));
   for (const entry of coverage) {
     for (const key of entry.coveredBy) if (!artifactByCaseKey.has(key)) artifactByCaseKey.set(key, entry.artifact);
   }
@@ -23,11 +24,15 @@ export function groupByCategory(cases: ReportCase[], coverage: CoverageEntry[]):
   return [...casesByCategory.entries()]
     .sort(([first], [second]) => first.localeCompare(second))
     .map(([name, categoryCases]) => {
-      const casesByPath = groupBy(categoryCases, (reportCase) => artifactByCaseKey.get(reportCase.key)?.path ?? null);
+      const casesByPath = groupBy(
+        categoryCases,
+        (reportCase) => reportCase.instruction ?? artifactByCaseKey.get(reportCase.key)?.path ?? null,
+      );
       const groups: ReportGroup[] = [...casesByPath.entries()]
         .sort(([first], [second]) => (first ?? "￿").localeCompare(second ?? "￿"))
         .map(([path, groupCases]) => {
-          const artifact = groupCases[0] ? artifactByCaseKey.get(groupCases[0].key) : undefined;
+          const artifact =
+            path === null ? undefined : (artifactByPath.get(path) ?? artifactByCaseKey.get(groupCases[0]!.key));
           const totals = sumCases(groupCases);
           return {
             path,
