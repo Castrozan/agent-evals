@@ -41,7 +41,7 @@ export function buildInvocation(
     pluginDirectories: staged.pluginDirectories,
     environment: subjectEnvironment(runtime, staged),
     timeoutMs: timeoutMillisecondsOf(evalCase, runtime),
-    isolatedContext: true,
+    isolatedContext: false,
   };
 }
 
