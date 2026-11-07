@@ -9,6 +9,7 @@ export const usage = { input: 1, output: 1, cacheRead: 0, cacheWrite: 0, reasoni
 export const fixture = path.join(
   path.dirname(fileURLToPath(import.meta.url)),
   "..",
+  "..",
   "mcp",
   "__fixtures__",
   "echoServer.mjs",
