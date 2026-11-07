@@ -1,7 +1,10 @@
 import type { CaseAssertions } from "../domain/cases.js";
 import type { AssertionOutcome, SessionTranscript } from "../domain/results.js";
 
-export type UsageAssertions = Pick<CaseAssertions, "skillsUsed" | "skillsForbidden" | "toolsUsed" | "toolsForbidden">;
+export type UsageAssertions = Pick<
+  CaseAssertions,
+  "skillsUsed" | "skillsForbidden" | "toolsUsed" | "toolsForbidden" | "commandsRun" | "commandsRunForbidden"
+>;
 
 export function shortToolName(toolName: string): string {
   if (!toolName.startsWith("mcp__")) return toolName;
@@ -36,9 +39,28 @@ function usageOutcomes(
   });
 }
 
+function commandOutcomes(
+  fragments: readonly string[],
+  commandsRun: readonly string[],
+  shouldBePresent: boolean,
+): AssertionOutcome[] {
+  return fragments.map((fragment) => {
+    const matching = commandsRun.filter((command) => command.includes(fragment));
+    const passed = matching.length > 0 === shouldBePresent;
+    const message = shouldBePresent
+      ? passed
+        ? `Comando com "${fragment}" executado.`
+        : `Nenhum comando executado contém "${fragment}".`
+      : passed
+        ? `Nenhum comando executado contém "${fragment}".`
+        : `Comando proibido executado: ${matching[0]}`;
+    return { kind: shouldBePresent ? "commandsRun" : "commandsRunForbidden", passed, message };
+  });
+}
+
 export function evaluateSessionUsage(
   assertions: UsageAssertions,
-  transcript: Pick<SessionTranscript, "skillsUsed" | "toolsUsed">,
+  transcript: Pick<SessionTranscript, "skillsUsed" | "toolsUsed" | "commandsRun">,
 ): AssertionOutcome[] {
   const lower = (value: string) => value.toLowerCase();
   const { skillsUsed, toolsUsed } = transcript;
@@ -47,5 +69,7 @@ export function evaluateSessionUsage(
     ...usageOutcomes("skillsForbidden", "Skill", assertions.skillsForbidden, skillsUsed, false, lower),
     ...usageOutcomes("toolsUsed", "Ferramenta", assertions.toolsUsed, toolsUsed, true, shortToolName),
     ...usageOutcomes("toolsForbidden", "Ferramenta", assertions.toolsForbidden, toolsUsed, false, shortToolName),
+    ...commandOutcomes(assertions.commandsRun, transcript.commandsRun, true),
+    ...commandOutcomes(assertions.commandsRunForbidden, transcript.commandsRun, false),
   ];
 }

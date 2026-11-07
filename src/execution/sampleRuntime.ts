@@ -19,6 +19,8 @@ export interface SampleRuntime extends SampleSettings {
   stager: SessionStager;
 }
 
+export const SOURCE_ROOT_VARIABLE = "AGENT_EVALS_SOURCE_ROOT";
+
 export const EMPTY_TOKEN_USAGE: TokenUsage = { input: 0, output: 0, cacheRead: 0, cacheWrite: 0, reasoning: 0 };
 
 export function instrumentFailureSample(

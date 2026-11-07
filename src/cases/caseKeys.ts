@@ -20,6 +20,8 @@ const assertionKeys: KeySchema = {
   skillsForbidden: keyRule("skills_proibidas", "skills_forbidden"),
   toolsUsed: keyRule("ferramentas_usadas", "tools_used"),
   toolsForbidden: keyRule("ferramentas_proibidas", "tools_forbidden"),
+  commandsRun: keyRule("comandos_executados", "commands_run"),
+  commandsRunForbidden: keyRule("comandos_executados_proibidos", "commands_run_forbidden"),
   generatedFiles: keyRule("arquivo_gerado", "generated_files"),
   commands: keyRule(
     "comandos",

@@ -59,6 +59,8 @@ export function observeClaudeMessage(
       if (block.type !== "tool_use" || !block.name) continue;
       recordTool(observation, block.name);
       if (block.name === "Skill") recordSkill(observation, skillName(block.input));
+      const command = (block.input as { command?: unknown } | undefined)?.command;
+      if (block.name === "Bash" && typeof command === "string") observation.commandsRun.push(command);
     }
     return undefined;
   }

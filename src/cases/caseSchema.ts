@@ -38,6 +38,8 @@ const instructionAssertions = z
     skillsForbidden: textList,
     toolsUsed: textList,
     toolsForbidden: textList,
+    commandsRun: textList,
+    commandsRunForbidden: textList,
     commands: z.array(commandCheck).default([]),
     judgeOnCommand: z.array(judgedCommand).default([]),
   })
@@ -64,6 +66,8 @@ const emptyAssertions: CaseAssertions = {
   skillsForbidden: [],
   toolsUsed: [],
   toolsForbidden: [],
+  commandsRun: [],
+  commandsRunForbidden: [],
   generatedFiles: [],
   commands: [],
   judgeOnCommand: [],

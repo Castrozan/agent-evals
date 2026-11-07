@@ -31,6 +31,7 @@ function observeItem(item: ThreadItem, observation: SessionObservation): void {
       return;
     case "command_execution":
       recordTool(observation, "shell");
+      observation.commandsRun.push(item.command);
       observation.toolOutputCharacters += item.aggregated_output.length;
       for (const match of item.command.matchAll(SKILL_FILE_PATTERN)) recordSkill(observation, match[1] ?? "");
       return;

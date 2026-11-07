@@ -61,8 +61,9 @@ tools the session used. End-to-end runs the whole flow in a staged workspace and
 
 ## Configuration
 
-Everything project-specific lives in `evals/config.yaml`. Set `AGENT_EVALS_CONFIG` to keep it elsewhere inside the
-repository.
+Everything project-specific lives in `evals/config.yaml`. To keep it elsewhere, set `AGENT_EVALS_CONFIG` to its path
+relative to the repository root. Post-session commands and CLI cases get `AGENT_EVALS_SOURCE_ROOT`, the measured
+checkout, so a case can call the repository's own checker scripts.
 
 ```yaml
 projeto: my-agent-tools

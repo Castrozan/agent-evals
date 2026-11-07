@@ -72,6 +72,8 @@ export interface CaseAssertions {
   skillsForbidden: string[];
   toolsUsed: string[];
   toolsForbidden: string[];
+  commandsRun: string[];
+  commandsRunForbidden: string[];
   generatedFiles: string[];
   commands: CommandCheck[];
   judgeOnCommand: JudgedCommand[];

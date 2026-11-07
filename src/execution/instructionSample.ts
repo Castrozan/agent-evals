@@ -9,7 +9,12 @@ import type { AssertionOutcome, InstrumentFailure, SampleResult, SessionTranscri
 import { createGrader, type Grader } from "../judge/grade.js";
 import { judgeOnCommand } from "../judge/judgeOnCommand.js";
 import { buildUnitSystemPrompt } from "./instructionSurface.js";
-import { instrumentFailureSample, substituteSessionInAll, type SampleRuntime } from "./sampleRuntime.js";
+import {
+  instrumentFailureSample,
+  SOURCE_ROOT_VARIABLE,
+  substituteSessionInAll,
+  type SampleRuntime,
+} from "./sampleRuntime.js";
 
 function timeoutMillisecondsOf(evalCase: InstructionCase, runtime: SampleRuntime): number {
   return (evalCase.timeoutSeconds ?? runtime.config.timeoutSeconds) * 1000;
@@ -17,7 +22,12 @@ function timeoutMillisecondsOf(evalCase: InstructionCase, runtime: SampleRuntime
 
 function subjectEnvironment(runtime: SampleRuntime, staged: StagedSession): Record<string, string> {
   return substituteSessionInAll(
-    { ...runtime.config.subject.environment, ...runtime.variantEnvironment, ...staged.environment },
+    {
+      ...runtime.config.subject.environment,
+      ...runtime.variantEnvironment,
+      ...staged.environment,
+      [SOURCE_ROOT_VARIABLE]: runtime.sourceRoot,
+    },
     staged.sessionDirectory,
   );
 }

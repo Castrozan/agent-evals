@@ -90,6 +90,7 @@ describe("executeRun", () => {
         text: "",
         skillsUsed: [],
         toolsUsed: [],
+        commandsRun: [],
         tokenUsage: usage,
         toolOutputCharacters: 0,
         durationMs: 1,

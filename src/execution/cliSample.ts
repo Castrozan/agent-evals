@@ -4,7 +4,12 @@ import { evaluateTextAssertions } from "../assertions/text.js";
 import type { CliCase } from "../domain/cases.js";
 import { caseKey } from "../domain/cases.js";
 import type { AssertionOutcome, SampleResult } from "../domain/results.js";
-import { EMPTY_TOKEN_USAGE, substituteSessionInAll, type SampleRuntime } from "./sampleRuntime.js";
+import {
+  EMPTY_TOKEN_USAGE,
+  SOURCE_ROOT_VARIABLE,
+  substituteSessionInAll,
+  type SampleRuntime,
+} from "./sampleRuntime.js";
 
 type CliRuntime = Pick<
   SampleRuntime,
@@ -62,7 +67,7 @@ export async function runCliSample(evalCase: CliCase, runtime: CliRuntime): Prom
   try {
     const directory = staged?.sessionDirectory ?? runtime.sourceRoot;
     const environment = substituteSessionInAll(
-      { ...runtime.config.subject.environment, ...staged?.environment },
+      { ...runtime.config.subject.environment, ...staged?.environment, [SOURCE_ROOT_VARIABLE]: runtime.sourceRoot },
       directory,
     );
     const { assertions, output } = await runInDirectory(evalCase, directory, environment, timeoutMs);

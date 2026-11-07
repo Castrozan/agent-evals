@@ -4,6 +4,7 @@ export interface SessionObservation {
   text: string;
   skillsUsed: string[];
   toolsUsed: string[];
+  commandsRun: string[];
   tokenUsage: TokenUsage;
   toolOutputCharacters: number;
   costUsd?: number;
@@ -14,7 +15,14 @@ export function emptyTokenUsage(): TokenUsage {
 }
 
 export function emptyObservation(): SessionObservation {
-  return { text: "", skillsUsed: [], toolsUsed: [], tokenUsage: emptyTokenUsage(), toolOutputCharacters: 0 };
+  return {
+    text: "",
+    skillsUsed: [],
+    toolsUsed: [],
+    commandsRun: [],
+    tokenUsage: emptyTokenUsage(),
+    toolOutputCharacters: 0,
+  };
 }
 
 export function shortToolName(name: string): string {

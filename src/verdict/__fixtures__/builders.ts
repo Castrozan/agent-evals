@@ -58,6 +58,8 @@ export function makeCase(category: string, name: string, overrides: Partial<Inst
       skillsForbidden: [],
       toolsUsed: [],
       toolsForbidden: [],
+      commandsRun: [],
+      commandsRunForbidden: [],
       generatedFiles: [],
       commands: [],
       judgeOnCommand: [],

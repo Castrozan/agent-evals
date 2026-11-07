@@ -86,6 +86,8 @@ describe("computeCoverage", () => {
       skillsForbidden: [],
       toolsUsed: [],
       toolsForbidden: [],
+      commandsRun: [],
+      commandsRunForbidden: [],
       generatedFiles: [],
       commands: [],
       judgeOnCommand: [],

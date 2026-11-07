@@ -20,6 +20,7 @@ export interface SessionTranscript {
   text: string;
   skillsUsed: string[];
   toolsUsed: string[];
+  commandsRun: string[];
   tokenUsage: TokenUsage;
   toolOutputCharacters: number;
   costUsd?: number;

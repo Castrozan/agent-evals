@@ -40,7 +40,8 @@ export function resolveProjectLocation(
     const root = findRepositoryRoot(startDirectory);
     return { root, configPath: path.join(root, CONFIG_RELATIVE_PATH) };
   }
-  const configPath = path.resolve(startDirectory, declaredConfig);
+  const startRoot = nearestAncestor(startDirectory, ".git") ?? startDirectory;
+  const configPath = path.resolve(startRoot, declaredConfig);
   const root = nearestAncestor(path.dirname(configPath), ".git");
   if (root === undefined) {
     throw new ConfigurationError(

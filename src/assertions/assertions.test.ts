@@ -28,12 +28,40 @@ describe("text assertions", () => {
 
 describe("session usage", () => {
   it("matches MCP tools by short name", () => {
-    const transcript = { skillsUsed: ["Deploy"], toolsUsed: ["mcp__server__lookup", "Read"] };
+    const transcript = { skillsUsed: ["Deploy"], toolsUsed: ["mcp__server__lookup", "Read"], commandsRun: [] };
     const outcomes = evaluateSessionUsage(
-      { skillsUsed: ["deploy"], skillsForbidden: ["x"], toolsUsed: ["lookup"], toolsForbidden: ["Read"] },
+      {
+        skillsUsed: ["deploy"],
+        skillsForbidden: ["x"],
+        toolsUsed: ["lookup"],
+        toolsForbidden: ["Read"],
+        commandsRun: [],
+        commandsRunForbidden: [],
+      },
       transcript,
     );
     expect(outcomes.map((outcome) => outcome.passed)).toEqual([true, true, true, false]);
+  });
+
+  it("checks fragments of the shell commands the session ran", () => {
+    const transcript = {
+      skillsUsed: [],
+      toolsUsed: ["Bash"],
+      commandsRun: ["git add src/parser.py", "git commit --all -m wip"],
+    };
+    const outcomes = evaluateSessionUsage(
+      {
+        skillsUsed: [],
+        skillsForbidden: [],
+        toolsUsed: [],
+        toolsForbidden: [],
+        commandsRun: ["git add src/parser.py", "pytest"],
+        commandsRunForbidden: ["commit --all"],
+      },
+      transcript,
+    );
+    expect(outcomes.map((outcome) => outcome.passed)).toEqual([true, false, false]);
+    expect(outcomes[2]?.message).toContain("commit --all");
   });
 });
 
