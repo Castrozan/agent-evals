@@ -1,8 +1,8 @@
 import { readFileSync } from "node:fs";
 import path from "node:path";
-import { expandPatterns } from "../fingerprint/instructionPaths.js";
-import type { InstructionCase } from "../domain/cases.js";
-import { readFrontmatter } from "../instructions/frontmatter.js";
+import { expandPatterns } from "../../fingerprint/instructionPaths.js";
+import type { InstructionCase } from "../../domain/cases.js";
+import { readFrontmatter } from "../../instructions/frontmatter.js";
 
 export function stripFrontmatter(content: string): string {
   const lines = content.split("\n");

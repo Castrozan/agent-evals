@@ -1,4 +1,4 @@
-import type { RuntimeServices } from "../execution/jobSample.js";
+import type { RuntimeServices } from "../execution/promptfoo/jobSample.js";
 import { sessionStager } from "../staging/index.js";
 import { createSubjectClient } from "../subjects/index.js";
 

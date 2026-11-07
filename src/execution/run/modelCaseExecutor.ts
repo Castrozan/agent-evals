@@ -1,7 +1,7 @@
-import type { InstructionCase } from "../domain/cases.js";
-import type { SampleResult } from "../domain/results.js";
-import { runInstructionSample } from "./instructionSample.js";
-import type { SampleRuntime, SampleSettings } from "./sampleRuntime.js";
+import type { InstructionCase } from "../../domain/cases.js";
+import type { SampleResult } from "../../domain/results.js";
+import { runInstructionSample } from "../samples/instructionSample.js";
+import type { SampleRuntime, SampleSettings } from "../samples/sampleRuntime.js";
 import { runWithConcurrency } from "./workerPool.js";
 
 export interface ModelSampleRequest {

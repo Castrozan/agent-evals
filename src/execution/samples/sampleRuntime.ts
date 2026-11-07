@@ -1,8 +1,8 @@
-import type { PluginDeclaration } from "../domain/cases.js";
-import type { ClientName, ExecutionProfile } from "../domain/clients.js";
-import type { SessionStager, SubjectClient } from "../domain/ports.js";
-import type { ProjectConfig } from "../domain/project.js";
-import type { InstrumentFailure, SampleResult, TokenUsage } from "../domain/results.js";
+import type { PluginDeclaration } from "../../domain/cases.js";
+import type { ClientName, ExecutionProfile } from "../../domain/clients.js";
+import type { SessionStager, SubjectClient } from "../../domain/ports.js";
+import type { ProjectConfig } from "../../domain/project.js";
+import type { InstrumentFailure, SampleResult, TokenUsage } from "../../domain/results.js";
 
 export type SubjectClientFactory = (client: ClientName) => SubjectClient;
 

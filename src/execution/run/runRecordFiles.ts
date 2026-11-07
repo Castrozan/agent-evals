@@ -2,8 +2,8 @@ import { randomBytes } from "node:crypto";
 import { appendFileSync, mkdirSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import type { EvalCase } from "../domain/cases.js";
-import type { SampleResult } from "../domain/results.js";
+import type { EvalCase } from "../../domain/cases.js";
+import type { SampleResult } from "../../domain/results.js";
 
 export const RUN_RECORD_FILE = "results.jsonl";
 

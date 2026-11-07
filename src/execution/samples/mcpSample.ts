@@ -1,7 +1,7 @@
-import type { McpCase } from "../domain/cases.js";
-import { caseKey } from "../domain/cases.js";
-import type { AssertionOutcome, SampleResult } from "../domain/results.js";
-import { connectMcpServer, type McpClient } from "../mcp/stdioClient.js";
+import type { McpCase } from "../../domain/cases.js";
+import { caseKey } from "../../domain/cases.js";
+import type { AssertionOutcome, SampleResult } from "../../domain/results.js";
+import { connectMcpServer, type McpClient } from "../../mcp/stdioClient.js";
 import { EMPTY_TOKEN_USAGE } from "./sampleRuntime.js";
 
 async function checkContract(evalCase: McpCase, client: McpClient): Promise<AssertionOutcome[]> {

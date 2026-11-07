@@ -2,11 +2,11 @@ import { spawn } from "node:child_process";
 import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-import { caseKey } from "../domain/cases.js";
-import type { SampleResult } from "../domain/results.js";
+import { caseKey } from "../../domain/cases.js";
+import type { SampleResult } from "../../domain/results.js";
 import type { JobFile } from "./jobSample.js";
-import type { ModelCaseExecutor, ModelExecutionOptions, ModelSampleRequest } from "./modelCaseExecutor.js";
-import { instrumentFailureSample, type SampleSettings } from "./sampleRuntime.js";
+import type { ModelCaseExecutor, ModelExecutionOptions, ModelSampleRequest } from "../run/modelCaseExecutor.js";
+import { instrumentFailureSample, type SampleSettings } from "../samples/sampleRuntime.js";
 
 export const PROMPTFOO_BINARY_VARIABLE = "AGENT_EVALS_PROMPTFOO";
 const INSTALL_HINT =
@@ -19,10 +19,15 @@ interface ChildOutcome {
   missing: boolean;
 }
 
-function runChild(binary: string, args: string[]): Promise<ChildOutcome> {
+function runChild(binary: string, args: string[], stateDirectory?: string): Promise<ChildOutcome> {
   return new Promise((resolve) => {
     const child = spawn(binary, args, {
-      env: { ...process.env, PROMPTFOO_DISABLE_TELEMETRY: "1", PROMPTFOO_DISABLE_UPDATE: "1" },
+      env: {
+        ...process.env,
+        PROMPTFOO_DISABLE_TELEMETRY: "1",
+        PROMPTFOO_DISABLE_UPDATE: "1",
+        ...(stateDirectory === undefined ? {} : { PROMPTFOO_CONFIG_DIR: stateDirectory }),
+      },
       stdio: ["ignore", "pipe", "pipe"],
     });
     let stdout = "";
@@ -106,6 +111,51 @@ export interface PromptfooExecutorOptions {
   sampleModuleUrl?: string;
 }
 
+const REQUESTS_PER_PROMPTFOO_RUN = 40;
+
+async function runChunk(
+  binary: string,
+  sampleModuleUrl: string,
+  executorOptions: PromptfooExecutorOptions,
+  settings: SampleSettings,
+  requests: readonly ModelSampleRequest[],
+  options: ModelExecutionOptions,
+): Promise<SampleResult[]> {
+  const directory = await mkdtemp(path.join(os.tmpdir(), "agent-evals-promptfoo-"));
+  try {
+    const providerPath = path.join(directory, "provider.mjs");
+    const jobFilePath = path.join(directory, "job.json");
+    const configPath = path.join(directory, "promptfooconfig.json");
+    const resultsPath = path.join(directory, "results.json");
+    const job: JobFile = {
+      settings,
+      requests: [...requests],
+      compositionModuleUrl: executorOptions.compositionModuleUrl,
+    };
+    await writeFile(providerPath, providerModuleSource(sampleModuleUrl));
+    await writeFile(jobFilePath, JSON.stringify(job));
+    await writeFile(
+      configPath,
+      JSON.stringify(buildPromptfooConfig(requests, providerPath, jobFilePath, options.concurrency)),
+    );
+    const outcome = await runChild(
+      binary,
+      ["eval", "-c", configPath, "--output", resultsPath, "--no-cache", "--no-table"],
+      path.join(directory, "state"),
+    );
+    const resultsContent = await readFile(resultsPath, "utf8").catch(() => undefined);
+    if (resultsContent === undefined) {
+      const message = `O promptfoo terminou com código ${outcome.exitCode} sem gravar resultados: ${outcome.stderr.trim().slice(-500)}`;
+      return requests.map((request) =>
+        instrumentFailureSample(caseKey(request.evalCase), request.repetition, { kind: "client-error", message }, 0),
+      );
+    }
+    return readSamples(resultsContent, requests);
+  } finally {
+    await rm(directory, { recursive: true, force: true });
+  }
+}
+
 export function createPromptfooExecutor(executorOptions: PromptfooExecutorOptions): ModelCaseExecutor {
   const binary = process.env[PROMPTFOO_BINARY_VARIABLE] ?? "promptfoo";
   const sampleModuleUrl = executorOptions.sampleModuleUrl ?? new URL("./jobSample.js", import.meta.url).href;
@@ -118,43 +168,14 @@ export function createPromptfooExecutor(executorOptions: PromptfooExecutorOption
       if ((await this.version()) === undefined) {
         throw new Error(`promptfoo não encontrado (${binary}). ${INSTALL_HINT}`);
       }
-      const directory = await mkdtemp(path.join(os.tmpdir(), "agent-evals-promptfoo-"));
-      try {
-        const providerPath = path.join(directory, "provider.mjs");
-        const jobFilePath = path.join(directory, "job.json");
-        const configPath = path.join(directory, "promptfooconfig.json");
-        const resultsPath = path.join(directory, "results.json");
-        const job: JobFile = {
-          settings,
-          requests: [...requests],
-          compositionModuleUrl: executorOptions.compositionModuleUrl,
-        };
-        await writeFile(providerPath, providerModuleSource(sampleModuleUrl));
-        await writeFile(jobFilePath, JSON.stringify(job));
-        const config = buildPromptfooConfig(requests, providerPath, jobFilePath, options.concurrency);
-        await writeFile(configPath, JSON.stringify(config));
-        const outcome = await runChild(binary, [
-          "eval",
-          "-c",
-          configPath,
-          "--output",
-          resultsPath,
-          "--no-cache",
-          "--no-write",
-          "--no-table",
-        ]);
-        const resultsContent = await readFile(resultsPath, "utf8").catch(() => undefined);
-        if (resultsContent === undefined) {
-          throw new Error(
-            `O promptfoo terminou com código ${outcome.exitCode} sem gravar resultados: ${outcome.stderr.trim()}`,
-          );
-        }
-        const samples = readSamples(resultsContent, requests);
-        requests.forEach((request, index) => options.onSample?.(request, samples[index]!));
-        return samples;
-      } finally {
-        await rm(directory, { recursive: true, force: true });
+      const samples: SampleResult[] = [];
+      for (let offset = 0; offset < requests.length; offset += REQUESTS_PER_PROMPTFOO_RUN) {
+        const chunk = requests.slice(offset, offset + REQUESTS_PER_PROMPTFOO_RUN);
+        const chunkSamples = await runChunk(binary, sampleModuleUrl, executorOptions, settings, chunk, options);
+        chunk.forEach((request, index) => options.onSample?.(request, chunkSamples[index]!));
+        samples.push(...chunkSamples);
       }
+      return samples;
     },
   };
 }

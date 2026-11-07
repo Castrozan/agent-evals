@@ -1,8 +1,8 @@
 import { appendFileSync, mkdirSync, readFileSync, rmSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import type { SampleResult } from "../domain/results.js";
-import { sha256Hex } from "../fingerprint/canonical.js";
+import type { SampleResult } from "../../domain/results.js";
+import { sha256Hex } from "../../fingerprint/canonical.js";
 
 export interface JournalEntry {
   caseKey: string;

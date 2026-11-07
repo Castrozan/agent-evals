@@ -3,15 +3,15 @@ import { existsSync, readdirSync, readFileSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
-import type { McpCase } from "../domain/cases.js";
-import { makeCase, makeConfig } from "../verdict/__fixtures__/builders.js";
-import { cliCase, fakeClient, fixture, stager, usage } from "./__fixtures__/fakes.js";
+import type { McpCase } from "../../domain/cases.js";
+import { makeCase, makeConfig } from "../../verdict/__fixtures__/builders.js";
+import { cliCase, fakeClient, fixture, stager, usage } from "../__fixtures__/fakes.js";
 import { runCliSample } from "./cliSample.js";
 import { buildInvocation } from "./instructionSample.js";
 import { stripFrontmatter } from "./instructionSurface.js";
 import { runMcpSample } from "./mcpSample.js";
-import { buildPromptfooConfig, providerModuleSource, readSamples } from "./promptfooExecutor.js";
-import { repetitionsFor } from "./repetitions.js";
+import { buildPromptfooConfig, providerModuleSource, readSamples } from "../promptfoo/promptfooExecutor.js";
+import { repetitionsFor } from "../run/repetitions.js";
 
 describe("cli and mcp runners", () => {
   it("runs a cli case with stdin and exit code", async () => {

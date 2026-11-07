@@ -1,13 +1,13 @@
-import { evaluateCommandChecks } from "../assertions/commandChecks.js";
-import { evaluateGeneratedFiles } from "../assertions/generatedFiles.js";
-import { evaluateSessionUsage } from "../assertions/sessionUsage.js";
-import { evaluateTextAssertions } from "../assertions/text.js";
-import type { InstructionCase } from "../domain/cases.js";
-import { caseKey } from "../domain/cases.js";
-import type { StagedSession, SubjectInvocation } from "../domain/ports.js";
-import type { AssertionOutcome, InstrumentFailure, SampleResult, SessionTranscript } from "../domain/results.js";
-import { createGrader, type Grader } from "../judge/grade.js";
-import { judgeOnCommand } from "../judge/judgeOnCommand.js";
+import { evaluateCommandChecks } from "../../assertions/commandChecks.js";
+import { evaluateGeneratedFiles } from "../../assertions/generatedFiles.js";
+import { evaluateSessionUsage } from "../../assertions/sessionUsage.js";
+import { evaluateTextAssertions } from "../../assertions/text.js";
+import type { InstructionCase } from "../../domain/cases.js";
+import { caseKey } from "../../domain/cases.js";
+import type { StagedSession, SubjectInvocation } from "../../domain/ports.js";
+import type { AssertionOutcome, InstrumentFailure, SampleResult, SessionTranscript } from "../../domain/results.js";
+import { createGrader, type Grader } from "../../judge/grade.js";
+import { judgeOnCommand } from "../../judge/judgeOnCommand.js";
 import { buildUnitSystemPrompt } from "./instructionSurface.js";
 import {
   instrumentFailureSample,

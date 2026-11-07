@@ -1,6 +1,6 @@
-import type { EvalCase } from "../domain/cases.js";
-import type { ExecutionProfile } from "../domain/clients.js";
-import type { ProjectConfig } from "../domain/project.js";
+import type { EvalCase } from "../../domain/cases.js";
+import type { ExecutionProfile } from "../../domain/clients.js";
+import type { ProjectConfig } from "../../domain/project.js";
 import { repetitionsFor } from "./repetitions.js";
 
 export interface PlannedCase {

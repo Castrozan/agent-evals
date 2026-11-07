@@ -1,14 +1,14 @@
-import type { EvalCase, InstructionCase } from "../domain/cases.js";
-import { caseKey } from "../domain/cases.js";
-import type { ExecutionProfile } from "../domain/clients.js";
-import type { SessionStager } from "../domain/ports.js";
-import type { ProjectConfig } from "../domain/project.js";
-import type { CaseRunResult, RunRecord, RunSelection, SampleResult } from "../domain/results.js";
-import { caseFingerprint, instructionFingerprints } from "../fingerprint/index.js";
-import { profileId } from "../profile/index.js";
-import { assessRunValidity } from "../verdict/runValidity.js";
-import { runCliSample } from "./cliSample.js";
-import { hasInstructionSurface, withoutInstructionSurface } from "./instructionSurface.js";
+import type { EvalCase, InstructionCase } from "../../domain/cases.js";
+import { caseKey } from "../../domain/cases.js";
+import type { ExecutionProfile } from "../../domain/clients.js";
+import type { SessionStager } from "../../domain/ports.js";
+import type { ProjectConfig } from "../../domain/project.js";
+import type { CaseRunResult, RunRecord, RunSelection, SampleResult } from "../../domain/results.js";
+import { caseFingerprint, instructionFingerprints } from "../../fingerprint/index.js";
+import { profileId } from "../../profile/index.js";
+import { assessRunValidity } from "../../verdict/runValidity.js";
+import { runCliSample } from "../samples/cliSample.js";
+import { hasInstructionSurface, withoutInstructionSurface } from "../samples/instructionSurface.js";
 import { buildInstrumentVersions } from "./instrumentVersions.js";
 import {
   appendJournalEntry,
@@ -18,14 +18,14 @@ import {
   reusableSamples,
   type JournalEntry,
 } from "./journal.js";
-import { runMcpSample } from "./mcpSample.js";
+import { runMcpSample } from "../samples/mcpSample.js";
 import type { ModelCaseExecutor, ModelSampleRequest } from "./modelCaseExecutor.js";
 import { comparePairedControl } from "./pairedControl.js";
 import { planRun, type RunPlan } from "./plan.js";
 import { repetitionsFor } from "./repetitions.js";
 import { runWithConcurrency } from "./workerPool.js";
 import { appendRunRecord, createRunDirectory, stateRunsDirectory } from "./runRecordFiles.js";
-import type { SubjectClientFactory } from "./sampleRuntime.js";
+import type { SubjectClientFactory } from "../samples/sampleRuntime.js";
 
 export interface ExecuteRunOptions {
   config: ProjectConfig;

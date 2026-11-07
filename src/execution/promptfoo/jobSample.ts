@@ -1,8 +1,8 @@
 import { readFileSync } from "node:fs";
-import type { SessionStager } from "../domain/ports.js";
-import type { SampleResult } from "../domain/results.js";
-import { createInProcessExecutor, type ModelSampleRequest } from "./modelCaseExecutor.js";
-import type { SampleSettings, SubjectClientFactory } from "./sampleRuntime.js";
+import type { SessionStager } from "../../domain/ports.js";
+import type { SampleResult } from "../../domain/results.js";
+import { createInProcessExecutor, type ModelSampleRequest } from "../run/modelCaseExecutor.js";
+import type { SampleSettings, SubjectClientFactory } from "../samples/sampleRuntime.js";
 
 export interface JobFile {
   settings: SampleSettings;

@@ -1,5 +1,5 @@
-import type { CaseRunResult, SampleResult } from "../domain/results.js";
-import { exactMcNemar } from "../statistics/significance.js";
+import type { CaseRunResult, SampleResult } from "../../domain/results.js";
+import { exactMcNemar } from "../../statistics/significance.js";
 
 export function comparePairedControl(
   withInstruction: readonly SampleResult[],

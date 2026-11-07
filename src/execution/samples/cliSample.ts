@@ -1,9 +1,9 @@
-import { evaluateGeneratedFiles } from "../assertions/generatedFiles.js";
-import { runShell } from "../assertions/shellCommand.js";
-import { evaluateTextAssertions } from "../assertions/text.js";
-import type { CliCase } from "../domain/cases.js";
-import { caseKey } from "../domain/cases.js";
-import type { AssertionOutcome, SampleResult } from "../domain/results.js";
+import { evaluateGeneratedFiles } from "../../assertions/generatedFiles.js";
+import { runShell } from "../../assertions/shellCommand.js";
+import { evaluateTextAssertions } from "../../assertions/text.js";
+import type { CliCase } from "../../domain/cases.js";
+import { caseKey } from "../../domain/cases.js";
+import type { AssertionOutcome, SampleResult } from "../../domain/results.js";
 import {
   EMPTY_TOKEN_USAGE,
   SOURCE_ROOT_VARIABLE,
