@@ -6,6 +6,7 @@ import path from "node:path";
 import { caseKey } from "../../domain/cases.js";
 import type { SampleResult } from "../../domain/results.js";
 import { sampleFilePath, type JobFile } from "./jobSample.js";
+import { readSamples } from "./promptfooResults.js";
 import type { ModelCaseExecutor, ModelExecutionOptions, ModelSampleRequest } from "../run/modelCaseExecutor.js";
 import { instrumentFailureSample, type SampleSettings } from "../samples/sampleRuntime.js";
 
@@ -75,52 +76,18 @@ export function buildPromptfooConfig(
   };
 }
 
-interface ResultRow {
-  vars?: { jobIndex?: number | string };
-  response?: { metadata?: { sample?: SampleResult } };
-  error?: string;
-}
-
-export function readSamples(
-  resultsContent: string | undefined,
-  requests: readonly ModelSampleRequest[],
-  recoveredSample: (index: number) => SampleResult | undefined = () => undefined,
-  missingMessage = "O promptfoo não devolveu resultado para a amostra.",
-): SampleResult[] {
-  const parsed = (resultsContent === undefined ? {} : JSON.parse(resultsContent)) as {
-    results?: { results?: ResultRow[] };
-  };
-  const samples: (SampleResult | undefined)[] = new Array<SampleResult | undefined>(requests.length).fill(undefined);
-  for (const row of parsed.results?.results ?? []) {
-    const index = Number(row.vars?.jobIndex);
-    const request = requests[index];
-    if (request === undefined) continue;
-    const sample = row.response?.metadata?.sample;
-    if (sample !== undefined) {
-      samples[index] = sample;
-      continue;
-    }
-    if (row.error !== undefined) throw new Error(`Falha no promptfoo em ${caseKey(request.evalCase)}: ${row.error}`);
-  }
-  return requests.map(
-    (request, index) =>
-      samples[index] ??
-      recoveredSample(index) ??
-      instrumentFailureSample(
-        caseKey(request.evalCase),
-        request.repetition,
-        { kind: "client-error", message: missingMessage },
-        0,
-      ),
-  );
-}
-
 export interface PromptfooExecutorOptions {
   compositionModuleUrl: string;
   sampleModuleUrl?: string;
 }
 
 const REQUESTS_PER_PROMPTFOO_RUN = 40;
+const PROMPTFOO_ATTEMPTS_PER_CHUNK = 3;
+
+interface ChunkOutcome {
+  samples: (SampleResult | undefined)[];
+  missingMessage: string;
+}
 
 function recordedSample(jobFilePath: string, index: number): SampleResult | undefined {
   try {
@@ -137,7 +104,7 @@ async function runChunk(
   settings: SampleSettings,
   requests: readonly ModelSampleRequest[],
   options: ModelExecutionOptions,
-): Promise<SampleResult[]> {
+): Promise<ChunkOutcome> {
   const directory = await mkdtemp(path.join(os.tmpdir(), "agent-evals-promptfoo-"));
   try {
     const providerPath = path.join(directory, "provider.mjs");
@@ -164,11 +131,39 @@ async function runChunk(
     const missingMessage =
       resultsContent === undefined
         ? `O promptfoo terminou com código ${outcome.exitCode} sem gravar resultados: ${outcome.stderr.trim().slice(-500)}`
-        : undefined;
-    return readSamples(resultsContent, requests, (index) => recordedSample(jobFilePath, index), missingMessage);
+        : "O promptfoo não devolveu resultado para a amostra.";
+    return {
+      samples: readSamples(resultsContent, requests, (index) => recordedSample(jobFilePath, index)),
+      missingMessage,
+    };
   } finally {
     await rm(directory, { recursive: true, force: true });
   }
+}
+
+async function runChunkUntilComplete(
+  runPending: (pending: readonly ModelSampleRequest[]) => Promise<ChunkOutcome>,
+  requests: readonly ModelSampleRequest[],
+): Promise<SampleResult[]> {
+  const samples: (SampleResult | undefined)[] = new Array<SampleResult | undefined>(requests.length).fill(undefined);
+  let missingMessage = "";
+  for (let attempt = 0; attempt < PROMPTFOO_ATTEMPTS_PER_CHUNK; attempt += 1) {
+    const pendingIndices = requests.flatMap((_, index) => (samples[index] === undefined ? [index] : []));
+    if (pendingIndices.length === 0) break;
+    const outcome = await runPending(pendingIndices.map((index) => requests[index]!));
+    pendingIndices.forEach((requestIndex, pendingIndex) => (samples[requestIndex] = outcome.samples[pendingIndex]));
+    missingMessage = outcome.missingMessage;
+  }
+  return requests.map(
+    (request, index) =>
+      samples[index] ??
+      instrumentFailureSample(
+        caseKey(request.evalCase),
+        request.repetition,
+        { kind: "client-error", message: missingMessage },
+        0,
+      ),
+  );
 }
 
 export function createPromptfooExecutor(executorOptions: PromptfooExecutorOptions): ModelCaseExecutor {
@@ -186,7 +181,10 @@ export function createPromptfooExecutor(executorOptions: PromptfooExecutorOption
       const samples: SampleResult[] = [];
       for (let offset = 0; offset < requests.length; offset += REQUESTS_PER_PROMPTFOO_RUN) {
         const chunk = requests.slice(offset, offset + REQUESTS_PER_PROMPTFOO_RUN);
-        const chunkSamples = await runChunk(binary, sampleModuleUrl, executorOptions, settings, chunk, options);
+        const chunkSamples = await runChunkUntilComplete(
+          (pending) => runChunk(binary, sampleModuleUrl, executorOptions, settings, pending, options),
+          chunk,
+        );
         chunk.forEach((request, index) => options.onSample?.(request, chunkSamples[index]!));
         samples.push(...chunkSamples);
       }

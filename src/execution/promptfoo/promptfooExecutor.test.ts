@@ -28,7 +28,7 @@ afterEach(() => {
 });
 
 describe("promptfoo executor", () => {
-  it("splits large batches across runs with private state and turns a crashed run into instrument failures", async () => {
+  it("splits large batches across runs with private state and retries a crashed run before reporting instrument failures", async () => {
     const { binary, log } = await fakePromptfoo(
       [
         'if [ "$1" = "--version" ]; then echo 0.118.14; exit 0; fi',
@@ -49,34 +49,35 @@ describe("promptfoo executor", () => {
     });
 
     const stateDirectories = (await readFile(log, "utf8")).trim().split("\n");
-    expect(stateDirectories).toHaveLength(2);
-    expect(new Set(stateDirectories).size).toBe(2);
+    expect(stateDirectories).toHaveLength(6);
+    expect(new Set(stateDirectories).size).toBe(6);
     expect(samples).toHaveLength(45);
     expect(samples.every((sample) => sample.instrumentFailure?.kind === "client-error")).toBe(true);
     expect(samples[0]?.instrumentFailure?.message).toContain("native teardown aborted");
     expect(seen).toHaveLength(45);
   });
 
-  it("recovers the samples that finished before promptfoo died", async () => {
+  it("keeps samples finished before promptfoo died and reruns only the lost ones", async () => {
     const recovered = JSON.stringify({ caseKey: "categoria/caso", repetition: 1, passed: true, assertions: [] });
-    const { binary } = await fakePromptfoo(
+    const { binary, log } = await fakePromptfoo(
       [
         'if [ "$1" = "--version" ]; then echo 0.118.14; exit 0; fi',
+        'echo "$3" >> "$LOG"',
         'job_directory=$(dirname "$3")',
         'mkdir -p "$job_directory/samples"',
         `echo '${recovered}' > "$job_directory/samples/0.json"`,
+        'echo "better_sqlite3 abort" >&2',
         "exit 134",
       ].join("\n"),
     );
     process.env[PROMPTFOO_BINARY_VARIABLE] = binary;
     const evalCase = makeCase("categoria", "caso") as InstructionCase;
-    const requests = [1, 2].map((repetition) => ({ evalCase, repetition, control: false }));
+    const requests = [1, 2, 3].map((repetition) => ({ evalCase, repetition, control: false }));
     const executor = createPromptfooExecutor({ compositionModuleUrl: "file:///nowhere.js" });
 
     const samples = await executor.execute(settings, requests, { concurrency: 1 });
 
-    expect(samples[0]?.passed).toBe(true);
-    expect(samples[0]?.instrumentFailure).toBeUndefined();
-    expect(samples[1]?.instrumentFailure?.message).toContain("sem gravar resultados");
+    expect((await readFile(log, "utf8")).trim().split("\n")).toHaveLength(3);
+    expect(samples.every((sample) => sample.passed && sample.instrumentFailure === undefined)).toBe(true);
   });
 });

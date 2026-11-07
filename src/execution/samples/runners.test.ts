@@ -10,7 +10,8 @@ import { runCliSample } from "./cliSample.js";
 import { buildInvocation } from "./instructionSample.js";
 import { stripFrontmatter } from "./instructionSurface.js";
 import { runMcpSample } from "./mcpSample.js";
-import { buildPromptfooConfig, providerModuleSource, readSamples } from "../promptfoo/promptfooExecutor.js";
+import { buildPromptfooConfig, providerModuleSource } from "../promptfoo/promptfooExecutor.js";
+import { readSamples } from "../promptfoo/promptfooResults.js";
 import { repetitionsFor } from "../run/repetitions.js";
 
 describe("cli and mcp runners", () => {
