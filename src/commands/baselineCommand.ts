@@ -23,7 +23,6 @@ export function registerBaselineCommand(program: Command, hooks: BaselineCommand
     .command("baseline")
     .description("grava como baseline a última execução conferida; --rodar mede e grava em um passo")
     .option("--rodar", "roda a suíte antes de gravar")
-    .option("--variante <nome>", "grava a baseline da variante")
     .action(async (options: Record<string, unknown>) => {
       const context = loadProjectContext();
       const run =

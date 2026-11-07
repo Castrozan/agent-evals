@@ -1,5 +1,5 @@
 export { executeRun, type ExecuteRunOptions, type ExecutionOutcome } from "./executeRun.js";
-export { runJobSample } from "./jobSample.js";
+export { runJobSample, type RuntimeServices } from "./jobSample.js";
 export {
   createInProcessExecutor,
   type ModelCaseExecutor,
