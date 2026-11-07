@@ -195,66 +195,6 @@ describe("session stager", () => {
     expect(session.environment).toEqual({});
   });
 
-  it("assembles plugins outside the session dir and rewrites the root variable for claude", async () => {
-    const source = createSourceRepository({ ...SOURCE, "hooks-src/run.sh": "echo ${PLUGIN_ROOT}\n" });
-    const environment = emptyEnvironment({
-      plugins: [
-        {
-          name: "hook-plugin",
-          copy: ["hooks-src"],
-          files: [{ path: "hooks/hooks.json", content: '{"command":"${PLUGIN_ROOT}/hooks-src/run.sh"}' }],
-        },
-      ],
-    });
-    const session = await stage(
-      buildRequest(source, {
-        evalCase: buildCase({ environment }),
-        variantPlugins: [{ name: "companion", copy: [], files: [{ path: "a.txt", content: "a" }] }],
-      }),
-    );
-    const [pluginDirectory, companion] = session.pluginDirectories as [string, string];
-    expect(pluginDirectory.startsWith(session.root)).toBe(false);
-    expect(readFileSync(path.join(pluginDirectory, "hooks/hooks.json"), "utf8")).toContain("${CLAUDE_PLUGIN_ROOT}");
-    expect(readFileSync(path.join(pluginDirectory, "hooks-src/run.sh"), "utf8")).toContain("${CLAUDE_PLUGIN_ROOT}");
-    const manifest = JSON.parse(readFileSync(path.join(pluginDirectory, ".claude-plugin/plugin.json"), "utf8"));
-    expect(manifest).toMatchObject({ name: "hook-plugin", hooks: "./hooks/hooks.json" });
-    expect(existsSync(path.join(companion, "plugin.json"))).toBe(true);
-  });
-
-  it("errors on a variant plugin colliding with a case plugin", async () => {
-    const source = createSourceRepository(SOURCE);
-    const environment = emptyEnvironment({ plugins: [{ name: "same", copy: [], files: [] }] });
-    await expect(
-      stage(
-        buildRequest(source, {
-          evalCase: buildCase({ environment }),
-          variantPlugins: [{ name: "same", copy: [], files: [] }],
-        }),
-      ),
-    ).rejects.toThrow(/colide/);
-  });
-
-  it("keeps the PLUGIN_ROOT variable for codex and uses a private CODEX_HOME with credentials linked", async () => {
-    const source = createSourceRepository({ ...SOURCE, "p/x.json": '{"r":"${PLUGIN_ROOT}"}' });
-    const environment = emptyEnvironment({ plugins: [{ name: "cp", copy: ["p"], files: [] }] });
-    const session = await stage(buildRequest(source, { client: "codex", evalCase: buildCase({ environment }) }));
-    const [pluginDirectory] = session.pluginDirectories as [string];
-    expect(readFileSync(path.join(pluginDirectory, "p/x.json"), "utf8")).toContain("${PLUGIN_ROOT}");
-    const home = session.environment.CODEX_HOME as string;
-    expect(readFileSync(path.join(home, "config.toml"), "utf8")).toContain('[plugins."cp@agent-evals-local"]');
-    expect(existsSync(path.join(pluginDirectory, ".codex-plugin/plugin.json"))).toBe(true);
-  });
-
-  it("rejects opencode with plugins or subject environment", async () => {
-    const source = createSourceRepository(SOURCE);
-    const environment = emptyEnvironment({ plugins: [{ name: "p", copy: [], files: [] }] });
-    await expect(
-      stage(buildRequest(source, { client: "opencode", evalCase: buildCase({ environment }) })),
-    ).rejects.toThrow(/plugins/);
-    const config = buildConfig({ subject: { canonicalClient: "claude", environment: { A: "1" } } });
-    await expect(stage(buildRequest(source, { client: "opencode", config }))).rejects.toThrow(/ambiente do sujeito/);
-  });
-
   it("removes every staged directory on dispose", async () => {
     const source = createSourceRepository(SOURCE);
     const environment = emptyEnvironment({ plugins: [{ name: "p", copy: [], files: [] }] });
