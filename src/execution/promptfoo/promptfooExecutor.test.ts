@@ -56,4 +56,27 @@ describe("promptfoo executor", () => {
     expect(samples[0]?.instrumentFailure?.message).toContain("native teardown aborted");
     expect(seen).toHaveLength(45);
   });
+
+  it("recovers the samples that finished before promptfoo died", async () => {
+    const recovered = JSON.stringify({ caseKey: "categoria/caso", repetition: 1, passed: true, assertions: [] });
+    const { binary } = await fakePromptfoo(
+      [
+        'if [ "$1" = "--version" ]; then echo 0.118.14; exit 0; fi',
+        'job_directory=$(dirname "$3")',
+        'mkdir -p "$job_directory/samples"',
+        `echo '${recovered}' > "$job_directory/samples/0.json"`,
+        "exit 134",
+      ].join("\n"),
+    );
+    process.env[PROMPTFOO_BINARY_VARIABLE] = binary;
+    const evalCase = makeCase("categoria", "caso") as InstructionCase;
+    const requests = [1, 2].map((repetition) => ({ evalCase, repetition, control: false }));
+    const executor = createPromptfooExecutor({ compositionModuleUrl: "file:///nowhere.js" });
+
+    const samples = await executor.execute(settings, requests, { concurrency: 1 });
+
+    expect(samples[0]?.passed).toBe(true);
+    expect(samples[0]?.instrumentFailure).toBeUndefined();
+    expect(samples[1]?.instrumentFailure?.message).toContain("sem gravar resultados");
+  });
 });

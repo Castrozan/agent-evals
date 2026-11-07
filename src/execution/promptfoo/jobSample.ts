@@ -1,4 +1,5 @@
-import { readFileSync } from "node:fs";
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import path from "node:path";
 import type { SessionStager } from "../../domain/ports.js";
 import type { SampleResult } from "../../domain/results.js";
 import { createInProcessExecutor, type ModelSampleRequest } from "../run/modelCaseExecutor.js";
@@ -38,5 +39,12 @@ export async function runJobSample(jobFilePath: string, jobIndex: number): Promi
   const services = await loadServices(job.compositionModuleUrl);
   const executor = createInProcessExecutor({ ...job.settings, ...services });
   const [sample] = await executor.execute(job.settings, [request], { concurrency: 1 });
+  const recordedPath = sampleFilePath(jobFilePath, jobIndex);
+  mkdirSync(path.dirname(recordedPath), { recursive: true });
+  writeFileSync(recordedPath, JSON.stringify(sample));
   return sample!;
+}
+
+export function sampleFilePath(jobFilePath: string, jobIndex: number): string {
+  return path.join(path.dirname(jobFilePath), "samples", `${jobIndex}.json`);
 }

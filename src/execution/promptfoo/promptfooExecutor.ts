@@ -1,10 +1,11 @@
 import { spawn } from "node:child_process";
+import { readFileSync } from "node:fs";
 import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { caseKey } from "../../domain/cases.js";
 import type { SampleResult } from "../../domain/results.js";
-import type { JobFile } from "./jobSample.js";
+import { sampleFilePath, type JobFile } from "./jobSample.js";
 import type { ModelCaseExecutor, ModelExecutionOptions, ModelSampleRequest } from "../run/modelCaseExecutor.js";
 import { instrumentFailureSample, type SampleSettings } from "../samples/sampleRuntime.js";
 
@@ -80,8 +81,15 @@ interface ResultRow {
   error?: string;
 }
 
-export function readSamples(resultsContent: string, requests: readonly ModelSampleRequest[]): SampleResult[] {
-  const parsed = JSON.parse(resultsContent) as { results?: { results?: ResultRow[] } };
+export function readSamples(
+  resultsContent: string | undefined,
+  requests: readonly ModelSampleRequest[],
+  recoveredSample: (index: number) => SampleResult | undefined = () => undefined,
+  missingMessage = "O promptfoo não devolveu resultado para a amostra.",
+): SampleResult[] {
+  const parsed = (resultsContent === undefined ? {} : JSON.parse(resultsContent)) as {
+    results?: { results?: ResultRow[] };
+  };
   const samples: (SampleResult | undefined)[] = new Array<SampleResult | undefined>(requests.length).fill(undefined);
   for (const row of parsed.results?.results ?? []) {
     const index = Number(row.vars?.jobIndex);
@@ -97,10 +105,11 @@ export function readSamples(resultsContent: string, requests: readonly ModelSamp
   return requests.map(
     (request, index) =>
       samples[index] ??
+      recoveredSample(index) ??
       instrumentFailureSample(
         caseKey(request.evalCase),
         request.repetition,
-        { kind: "client-error", message: "O promptfoo não devolveu resultado para a amostra." },
+        { kind: "client-error", message: missingMessage },
         0,
       ),
   );
@@ -112,6 +121,14 @@ export interface PromptfooExecutorOptions {
 }
 
 const REQUESTS_PER_PROMPTFOO_RUN = 40;
+
+function recordedSample(jobFilePath: string, index: number): SampleResult | undefined {
+  try {
+    return JSON.parse(readFileSync(sampleFilePath(jobFilePath, index), "utf8")) as SampleResult;
+  } catch {
+    return undefined;
+  }
+}
 
 async function runChunk(
   binary: string,
@@ -144,13 +161,11 @@ async function runChunk(
       path.join(directory, "state"),
     );
     const resultsContent = await readFile(resultsPath, "utf8").catch(() => undefined);
-    if (resultsContent === undefined) {
-      const message = `O promptfoo terminou com código ${outcome.exitCode} sem gravar resultados: ${outcome.stderr.trim().slice(-500)}`;
-      return requests.map((request) =>
-        instrumentFailureSample(caseKey(request.evalCase), request.repetition, { kind: "client-error", message }, 0),
-      );
-    }
-    return readSamples(resultsContent, requests);
+    const missingMessage =
+      resultsContent === undefined
+        ? `O promptfoo terminou com código ${outcome.exitCode} sem gravar resultados: ${outcome.stderr.trim().slice(-500)}`
+        : undefined;
+    return readSamples(resultsContent, requests, (index) => recordedSample(jobFilePath, index), missingMessage);
   } finally {
     await rm(directory, { recursive: true, force: true });
   }
