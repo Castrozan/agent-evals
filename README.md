@@ -27,18 +27,18 @@ agent-evals check                  # the verdict CI runs, no model calls
 Commands, flags and config keys are Portuguese, and each one also accepts its English alias: `relatorio` or `report`,
 `--categoria` or `--category`, `casos` or `cases`. `agent-evals <command> --help` lists every option.
 
-| Command                             | What it does                                                            | Calls a model       |
-| ----------------------------------- | ----------------------------------------------------------------------- | ------------------- |
-| `run`                               | runs the suite and publishes the report                                 | yes                 |
-| `baseline [--rodar]`                | records the last run as baseline; `--rodar` runs first                  | only with `--rodar` |
-| `check`                             | verdict over the committed baseline                                     | no                  |
-| `check-instructions`                | frontmatter, description length and broken links                        | no                  |
-| `relatorio`                         | re-renders the page from the last run                                   | no                  |
-| `paginas`                           | builds the publishable directory, prints the URL and badge line         | no                  |
-| `testes`                            | runs the repository's ordinary test suite and adds its card to the page | no                  |
-| `snapshot`                          | posts the last measurement to an ingestion endpoint                     | no                  |
-| `calibrate`                         | measures judge agreement with hand labels                               | yes                 |
-| `compare --variante a --variante b` | case-by-case comparison of two variant baselines                        | no                  |
+| Command                             | What it does                                                                                  | Calls a model       |
+| ----------------------------------- | --------------------------------------------------------------------------------------------- | ------------------- |
+| `run`                               | runs the suite and publishes the report                                                       | yes                 |
+| `baseline [--rodar]`                | records the last run as baseline; `--rodar` runs first                                        | only with `--rodar` |
+| `check [--gravado]`                 | verdict over the committed baseline; `--gravado` reports stale or missing evidence as notices | no                  |
+| `check-instructions`                | frontmatter, description length and broken links                                              | no                  |
+| `relatorio`                         | re-renders the page from the last run                                                         | no                  |
+| `paginas`                           | builds the publishable directory, prints the URL and badge line                               | no                  |
+| `testes`                            | runs the repository's ordinary test suite and adds its card to the page                       | no                  |
+| `snapshot`                          | posts the last measurement to an ingestion endpoint                                           | no                  |
+| `calibrate`                         | measures judge agreement with hand labels                                                     | yes                 |
+| `compare --variante a --variante b` | case-by-case comparison of two variant baselines                                              | no                  |
 
 ## What it measures
 
