@@ -140,6 +140,7 @@ export function createPromptfooExecutor(executorOptions: PromptfooExecutorOption
           "--output",
           resultsPath,
           "--no-cache",
+          "--no-write",
           "--no-table",
         ]);
         const resultsContent = await readFile(resultsPath, "utf8").catch(() => undefined);
