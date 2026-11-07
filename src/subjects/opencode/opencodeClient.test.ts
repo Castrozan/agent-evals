@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { buildInvocation } from "./__fixtures__/invocation.js";
+import { buildInvocation } from "../__fixtures__/invocation.js";
 
 const serverMock = vi.hoisted(() => ({ start: vi.fn(), close: vi.fn() }));
 const sessionMock = vi.hoisted(() => ({

@@ -1,6 +1,6 @@
 import type { SessionMessageInfo } from "@opencode/client";
-import { describeError } from "./failures.js";
-import { addTokenUsage, recordSkill, recordTool, type SessionObservation } from "./transcript.js";
+import { describeError } from "../failures.js";
+import { addTokenUsage, recordSkill, recordTool, type SessionObservation } from "../transcript.js";
 
 type AssistantMessage = Extract<SessionMessageInfo, { type: "assistant" }>;
 

@@ -1,9 +1,9 @@
 import { cp, mkdir, stat } from "node:fs/promises";
-import type { StagingLayer } from "../domain/cases.js";
+import type { StagingLayer } from "../../domain/cases.js";
 import { initializeRepository } from "./git.js";
-import { resolveInside } from "./pathSafety.js";
+import { resolveInside } from "../pathSafety.js";
 import { materializeRepository } from "./repositoryMaterializer.js";
-import { StagingError } from "./stagingError.js";
+import { StagingError } from "../stagingError.js";
 
 export async function applyLayers(layers: StagingLayer[], root: string, sourceRoot: string): Promise<void> {
   for (const [index, layer] of layers.entries()) {

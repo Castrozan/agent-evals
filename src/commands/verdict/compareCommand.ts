@@ -1,15 +1,15 @@
 import type { Command } from "commander";
-import { readBaseline, resolveBaselinePath } from "../baseline/index.js";
+import { readBaseline, resolveBaselinePath } from "../../baseline/index.js";
 import {
   compareExitCode,
   compareVariants,
   missingVariantMessage,
   renderComparisonJson,
   renderComparisonText,
-} from "../compare/index.js";
-import type { Baseline } from "../domain/baseline.js";
-import { buildExecutionProfile, profileId } from "../profile/index.js";
-import { loadProjectContext, type ProjectContext } from "./projectContext.js";
+} from "../../compare/index.js";
+import type { Baseline } from "../../domain/baseline.js";
+import { buildExecutionProfile, profileId } from "../../profile/index.js";
+import { loadProjectContext, type ProjectContext } from "../projectContext.js";
 
 const CANONICAL_VARIANT = "canonica";
 

@@ -1,10 +1,10 @@
-import type { InstrumentFailure } from "../domain/results.js";
+import type { InstrumentFailure } from "../../domain/results.js";
 import { createIsolatedCodexHome, type IsolatedCodexHome } from "./codexIsolatedHome.js";
 import { observeCodexEvent } from "./codexEvents.js";
 import { codexClientOptions, codexThreadOptions } from "./codexOptions.js";
-import { loadSubjectPackage } from "./packageLoading.js";
-import type { SessionExecutor } from "./sessionRunner.js";
-import { defineSubjectClient } from "./subjectClient.js";
+import { loadSubjectPackage } from "../packageLoading.js";
+import type { SessionExecutor } from "../sessionRunner.js";
+import { defineSubjectClient } from "../subjectClient.js";
 
 export const CODEX_PACKAGE = "@openai/codex-sdk";
 

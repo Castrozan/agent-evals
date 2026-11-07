@@ -1,9 +1,9 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { isMap, parseDocument, type Document } from "yaml";
-import type { StagedFile } from "../domain/cases.js";
-import { resolveInside } from "./pathSafety.js";
-import { StagingError } from "./stagingError.js";
+import type { StagedFile } from "../../domain/cases.js";
+import { resolveInside } from "../pathSafety.js";
+import { StagingError } from "../stagingError.js";
 
 function isPlainObject(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);

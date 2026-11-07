@@ -1,14 +1,14 @@
 #!/usr/bin/env node
 import { Command } from "commander";
-import { registerBaselineCommand } from "./commands/baselineCommand.js";
-import { registerCalibrateCommand } from "./commands/calibrateCommand.js";
-import { registerCheckCommand } from "./commands/checkCommand.js";
+import { registerBaselineCommand } from "./commands/verdict/baselineCommand.js";
+import { registerCalibrateCommand } from "./commands/measurement/calibrateCommand.js";
+import { registerCheckCommand } from "./commands/verdict/checkCommand.js";
 import { registerCheckInstructionsCommand } from "./commands/checkInstructionsCommand.js";
-import { registerCompareCommand } from "./commands/compareCommand.js";
+import { registerCompareCommand } from "./commands/verdict/compareCommand.js";
 import { translateEnglishFlags } from "./commands/flagAliases.js";
 import { registerInitCommand } from "./commands/initCommand.js";
 import { registerReportCommands } from "./commands/reportCommands.js";
-import { addRunOptions, performRun, registerRunCommand } from "./commands/runCommand.js";
+import { addRunOptions, performRun, registerRunCommand } from "./commands/measurement/runCommand.js";
 
 const program = new Command("agent-evals").description(
   "Suíte de regressão para instruções de agente, scripts, hooks e servidores MCP",

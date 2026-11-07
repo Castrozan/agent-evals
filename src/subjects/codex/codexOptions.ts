@@ -1,5 +1,5 @@
 import type { CodexOptions, ModelReasoningEffort, SandboxMode, ThreadOptions } from "@openai/codex-sdk";
-import type { SubjectInvocation } from "../domain/ports.js";
+import type { SubjectInvocation } from "../../domain/ports.js";
 
 const DISABLED_FEATURES = {
   apps: false,

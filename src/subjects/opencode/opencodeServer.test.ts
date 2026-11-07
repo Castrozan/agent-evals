@@ -4,7 +4,7 @@ import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import { findFreePort, startOpencodeServer } from "./opencodeServer.js";
 
-const fakeCommand = path.join(path.dirname(fileURLToPath(import.meta.url)), "__fixtures__", "fakeOpencode.mjs");
+const fakeCommand = path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "__fixtures__", "fakeOpencode.mjs");
 
 describe("opencode server", () => {
   it("finds a free port", async () => {

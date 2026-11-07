@@ -4,9 +4,9 @@ import path from "node:path";
 import { globSync } from "tinyglobby";
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
-import type { RepositorySource } from "../domain/cases.js";
+import type { RepositorySource } from "../../domain/cases.js";
 import { runGit } from "./git.js";
-import { StagingError } from "./stagingError.js";
+import { StagingError } from "../stagingError.js";
 
 const execFileAsync = promisify(execFile);
 

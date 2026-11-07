@@ -1,5 +1,5 @@
 import type { EffortLevel, Options } from "@anthropic-ai/claude-agent-sdk";
-import type { SessionPosture, SubjectInvocation } from "../domain/ports.js";
+import type { SessionPosture, SubjectInvocation } from "../../domain/ports.js";
 
 const READ_TOOLS = ["Read", "Glob", "Grep", "Skill"];
 const WRITE_TOOLS = [...READ_TOOLS, "Write", "Edit", "Bash"];

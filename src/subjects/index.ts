@@ -1,8 +1,8 @@
 import type { ClientName } from "../domain/clients.js";
 import type { SubjectClient } from "../domain/ports.js";
-import { claudeSubjectClient } from "./claudeClient.js";
-import { codexSubjectClient } from "./codexClient.js";
-import { opencodeSubjectClient } from "./opencodeClient.js";
+import { claudeSubjectClient } from "./claude/claudeClient.js";
+import { codexSubjectClient } from "./codex/codexClient.js";
+import { opencodeSubjectClient } from "./opencode/opencodeClient.js";
 
 const SUBJECT_CLIENTS: Record<ClientName, SubjectClient> = {
   claude: claudeSubjectClient,

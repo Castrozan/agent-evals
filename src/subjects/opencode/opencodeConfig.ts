@@ -1,5 +1,5 @@
-import { SubjectConfigurationError } from "./configurationError.js";
-import type { SessionPosture, SubjectInvocation } from "../domain/ports.js";
+import { SubjectConfigurationError } from "../configurationError.js";
+import type { SessionPosture, SubjectInvocation } from "../../domain/ports.js";
 
 export const OPENCODE_AGENT_NAME = "agent-eval";
 

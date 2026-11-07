@@ -2,18 +2,18 @@ import os from "node:os";
 import fs from "node:fs";
 import path from "node:path";
 import type { Command } from "commander";
-import { isClientName, type ClientName } from "../domain/clients.js";
-import { callsModel } from "../domain/cases.js";
-import type { RunRecord } from "../domain/results.js";
-import { createPromptfooExecutor, executeRun, renderPlan } from "../execution/index.js";
-import { detectLeakedSkills, prepareWorkingTree } from "../isolation/index.js";
-import { buildExecutionProfile, profileId } from "../profile/index.js";
-import { createRuntimeServices } from "../runtime/services.js";
-import { readBaseline, resolveBaselinePath } from "../baseline/index.js";
-import { isCanonicalProfile } from "../profile/index.js";
-import { writeLastRun } from "./lastRun.js";
-import { loadProjectContext, type ProjectContext } from "./projectContext.js";
-import { publishRunReport } from "./reportAssembly.js";
+import { isClientName, type ClientName } from "../../domain/clients.js";
+import { callsModel } from "../../domain/cases.js";
+import type { RunRecord } from "../../domain/results.js";
+import { createPromptfooExecutor, executeRun, renderPlan } from "../../execution/index.js";
+import { detectLeakedSkills, prepareWorkingTree } from "../../isolation/index.js";
+import { buildExecutionProfile, profileId } from "../../profile/index.js";
+import { createRuntimeServices } from "../../runtime/services.js";
+import { readBaseline, resolveBaselinePath } from "../../baseline/index.js";
+import { isCanonicalProfile } from "../../profile/index.js";
+import { writeLastRun } from "../lastRun.js";
+import { loadProjectContext, type ProjectContext } from "../projectContext.js";
+import { publishRunReport } from "../reportAssembly.js";
 import { selectRunCases, type RunSelectionOptions } from "./runSelection.js";
 
 export interface RunOptions extends RunSelectionOptions {
@@ -98,7 +98,7 @@ export async function performRun(context: ProjectContext, options: RunOptions): 
       clients: services.clients,
       stager: services.stager,
       executor: createPromptfooExecutor({
-        compositionModuleUrl: new URL("../runtime/services.js", import.meta.url).href,
+        compositionModuleUrl: new URL("../../runtime/services.js", import.meta.url).href,
       }),
       workingTreeDirectory: workingTree.directory,
       selection,

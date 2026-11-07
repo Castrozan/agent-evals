@@ -1,8 +1,8 @@
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import path from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
-import type { StagedSession } from "../domain/ports.js";
-import { sessionStager } from "./stager.js";
+import type { StagedSession } from "../../domain/ports.js";
+import { sessionStager } from "../stager.js";
 import {
   buildCase,
   buildConfig,
@@ -10,7 +10,7 @@ import {
   createSourceRepository,
   emptyEnvironment,
   git,
-} from "./__fixtures__/stagingFixtures.js";
+} from "../__fixtures__/stagingFixtures.js";
 
 const sessions: StagedSession[] = [];
 async function stage(...args: Parameters<typeof sessionStager.stage>) {

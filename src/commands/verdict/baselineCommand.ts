@@ -1,11 +1,11 @@
 import path from "node:path";
 import type { Command } from "commander";
-import { mergeBaseline, writeBaseline } from "../baseline/index.js";
-import { caseKey } from "../domain/cases.js";
-import type { RunRecord } from "../domain/results.js";
+import { mergeBaseline, writeBaseline } from "../../baseline/index.js";
+import { caseKey } from "../../domain/cases.js";
+import type { RunRecord } from "../../domain/results.js";
 import { baselineForRun, baselinePathForRun } from "./baselineLocation.js";
-import { readLastRun } from "./lastRun.js";
-import { loadProjectContext, type ProjectContext } from "./projectContext.js";
+import { readLastRun } from "../lastRun.js";
+import { loadProjectContext, type ProjectContext } from "../projectContext.js";
 
 export function recordBaseline(context: ProjectContext, run: RunRecord): string {
   const target = baselinePathForRun(context, run);

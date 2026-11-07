@@ -19,9 +19,9 @@ import {
   writeReport,
   type ReportDocument,
 } from "../reporting/index.js";
-import { baselineForRun } from "./baselineLocation.js";
+import { baselineForRun } from "./verdict/baselineLocation.js";
 import type { ProjectContext } from "./projectContext.js";
-import { judgeVerdict } from "./verdictContext.js";
+import { judgeVerdict } from "./verdict/verdictContext.js";
 
 function calibrationFor(context: ProjectContext) {
   const corpusPath = path.resolve(context.root, context.config.judge.calibrationPath);

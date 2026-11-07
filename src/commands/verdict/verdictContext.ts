@@ -1,12 +1,12 @@
-import { findRubricViolations } from "../cases/index.js";
-import type { Baseline } from "../domain/baseline.js";
-import { caseKey } from "../domain/cases.js";
-import { instructionFingerprints } from "../fingerprint/index.js";
-import { checkInstructions } from "../instructions/index.js";
-import { buildExecutionProfile, profileId } from "../profile/index.js";
-import { evaluateVerdict } from "../verdict/index.js";
-import type { Verdict } from "../domain/baseline.js";
-import type { ProjectContext } from "./projectContext.js";
+import { findRubricViolations } from "../../cases/index.js";
+import type { Baseline } from "../../domain/baseline.js";
+import { caseKey } from "../../domain/cases.js";
+import { instructionFingerprints } from "../../fingerprint/index.js";
+import { checkInstructions } from "../../instructions/index.js";
+import { buildExecutionProfile, profileId } from "../../profile/index.js";
+import { evaluateVerdict } from "../../verdict/index.js";
+import type { Verdict } from "../../domain/baseline.js";
+import type { ProjectContext } from "../projectContext.js";
 
 export function canonicalProfileId(context: ProjectContext): string {
   return profileId(buildExecutionProfile(context.config, context.config.subject.canonicalClient));

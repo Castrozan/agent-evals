@@ -1,6 +1,6 @@
 import { mkdtemp, rm } from "node:fs/promises";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { buildInvocation } from "./__fixtures__/invocation.js";
+import { buildInvocation } from "../__fixtures__/invocation.js";
 
 const constructorMock = vi.hoisted(() => vi.fn());
 const startThreadMock = vi.hoisted(() => vi.fn());

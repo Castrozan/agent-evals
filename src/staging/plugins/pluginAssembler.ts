@@ -1,10 +1,10 @@
 import { cp, mkdir, readdir, readFile, rm, stat, writeFile } from "node:fs/promises";
 import path from "node:path";
-import type { ClientName } from "../domain/clients.js";
-import type { PluginDeclaration } from "../domain/cases.js";
-import { resolveInside } from "./pathSafety.js";
-import { materializeRepository } from "./repositoryMaterializer.js";
-import { StagingError } from "./stagingError.js";
+import type { ClientName } from "../../domain/clients.js";
+import type { PluginDeclaration } from "../../domain/cases.js";
+import { resolveInside } from "../pathSafety.js";
+import { materializeRepository } from "../workspace/repositoryMaterializer.js";
+import { StagingError } from "../stagingError.js";
 
 const MANIFEST_SCHEMA = "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json";
 const TEXT_EXTENSIONS = new Set([".json", ".md", ".sh", ".py", ".js", ".mjs", ".ts", ".toml", ".yaml", ".yml", ".txt"]);

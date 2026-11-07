@@ -1,8 +1,8 @@
-import { readBaseline, resolveBaselinePath } from "../baseline/index.js";
-import type { Baseline } from "../domain/baseline.js";
-import type { RunRecord } from "../domain/results.js";
-import { isCanonicalProfile } from "../profile/index.js";
-import type { ProjectContext } from "./projectContext.js";
+import { readBaseline, resolveBaselinePath } from "../../baseline/index.js";
+import type { Baseline } from "../../domain/baseline.js";
+import type { RunRecord } from "../../domain/results.js";
+import { isCanonicalProfile } from "../../profile/index.js";
+import type { ProjectContext } from "../projectContext.js";
 
 export function baselinePathForRun(context: ProjectContext, run: RunRecord): string {
   return resolveBaselinePath(context.config, {

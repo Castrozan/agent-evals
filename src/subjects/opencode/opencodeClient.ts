@@ -1,5 +1,5 @@
 import type { SessionMessageInfo } from "@opencode/client";
-import { classifyFailure } from "./failures.js";
+import { classifyFailure } from "../failures.js";
 import {
   OPENCODE_AGENT_NAME,
   opencodeServerConfiguration,
@@ -8,9 +8,9 @@ import {
 } from "./opencodeConfig.js";
 import { observeOpencodeMessages } from "./opencodeMessages.js";
 import { startOpencodeServer } from "./opencodeServer.js";
-import { loadSubjectPackage } from "./packageLoading.js";
-import type { SessionExecutor } from "./sessionRunner.js";
-import { defineSubjectClient } from "./subjectClient.js";
+import { loadSubjectPackage } from "../packageLoading.js";
+import type { SessionExecutor } from "../sessionRunner.js";
+import { defineSubjectClient } from "../subjectClient.js";
 
 export const OPENCODE_PACKAGE = "@opencode/client";
 

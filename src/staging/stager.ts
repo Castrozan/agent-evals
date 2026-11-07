@@ -5,12 +5,12 @@ import { callsModel, type EnvironmentDeclaration, type PluginDeclaration } from 
 import type { SessionStager, StagedSession, StagingRequest } from "../domain/ports.js";
 import { copyEntryFiles } from "./entryFiles.js";
 import { rejectUnsupportedOpencodeInputs, subjectEnvironment } from "./environmentVariables.js";
-import { applyAdjustments, applyRemovals, writeStagedFiles } from "./fileEdits.js";
-import { initializeRepository } from "./git.js";
-import { applyLayers } from "./layers.js";
-import { prepareCodexHome } from "./codexHome.js";
+import { applyAdjustments, applyRemovals, writeStagedFiles } from "./workspace/fileEdits.js";
+import { initializeRepository } from "./workspace/git.js";
+import { applyLayers } from "./workspace/layers.js";
+import { prepareCodexHome } from "./plugins/codexHome.js";
 import { isInside, resolveInside } from "./pathSafety.js";
-import { assemblePlugin, pluginName } from "./pluginAssembler.js";
+import { assemblePlugin, pluginName } from "./plugins/pluginAssembler.js";
 import { installSkills } from "./skillInstaller.js";
 import { StagingError } from "./stagingError.js";
 

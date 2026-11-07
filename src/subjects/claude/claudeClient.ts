@@ -1,10 +1,10 @@
 import type { Query } from "@anthropic-ai/claude-agent-sdk";
-import type { InstrumentFailure } from "../domain/results.js";
+import type { InstrumentFailure } from "../../domain/results.js";
 import { observeClaudeMessage } from "./claudeMessages.js";
 import { claudeQueryOptions } from "./claudeOptions.js";
-import { loadSubjectPackage } from "./packageLoading.js";
-import type { SessionExecutor } from "./sessionRunner.js";
-import { defineSubjectClient } from "./subjectClient.js";
+import { loadSubjectPackage } from "../packageLoading.js";
+import type { SessionExecutor } from "../sessionRunner.js";
+import { defineSubjectClient } from "../subjectClient.js";
 
 export const CLAUDE_PACKAGE = "@anthropic-ai/claude-agent-sdk";
 

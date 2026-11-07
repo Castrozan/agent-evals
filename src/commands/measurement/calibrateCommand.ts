@@ -1,9 +1,9 @@
 import path from "node:path";
 import type { Command } from "commander";
-import { calibrationRecordPath, checkCalibrationGate, writeCalibrationRecord } from "../calibration/index.js";
-import { createGrader, readCalibrationCorpus, runCalibration } from "../judge/index.js";
-import { createSubjectClient } from "../subjects/index.js";
-import { loadProjectContext } from "./projectContext.js";
+import { calibrationRecordPath, checkCalibrationGate, writeCalibrationRecord } from "../../calibration/index.js";
+import { createGrader, readCalibrationCorpus, runCalibration } from "../../judge/index.js";
+import { createSubjectClient } from "../../subjects/index.js";
+import { loadProjectContext } from "../projectContext.js";
 
 function percent(value: number): string {
   return `${(value * 100).toFixed(1)}%`;

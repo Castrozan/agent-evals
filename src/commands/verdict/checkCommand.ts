@@ -1,8 +1,8 @@
 import path from "node:path";
 import type { Command } from "commander";
-import { previousCommittedBaseline, readBaseline } from "../baseline/index.js";
-import { judgeRecordedEvidenceOnly, renderVerdict } from "../verdict/index.js";
-import { loadProjectContext } from "./projectContext.js";
+import { previousCommittedBaseline, readBaseline } from "../../baseline/index.js";
+import { judgeRecordedEvidenceOnly, renderVerdict } from "../../verdict/index.js";
+import { loadProjectContext } from "../projectContext.js";
 import { judgeVerdict } from "./verdictContext.js";
 
 export function registerCheckCommand(program: Command): void {
