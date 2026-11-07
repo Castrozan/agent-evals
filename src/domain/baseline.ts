@@ -7,6 +7,8 @@ export interface BaselineCaseEntry {
   name: string;
   level: CaseLevel;
   type: CaseType;
+  instruction?: string;
+  heldOut: boolean;
   fingerprint: string;
   samples: number;
   passes: number;

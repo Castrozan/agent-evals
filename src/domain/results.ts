@@ -52,6 +52,7 @@ export interface CaseRunResult {
   name: string;
   level: CaseLevel;
   type: CaseType;
+  instruction?: string;
   prompt?: string;
   expected?: string[];
   fingerprint: string;
