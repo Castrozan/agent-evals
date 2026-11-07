@@ -16,6 +16,7 @@ const ENGLISH_FLAG_ALIASES: Record<string, string> = {
   "--revision": "--revisao",
   "--format": "--formato",
   "--directory": "--diretorio",
+  "--recorded": "--gravado",
 };
 
 export function translateEnglishFlags(argumentsList: readonly string[]): string[] {
