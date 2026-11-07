@@ -94,4 +94,14 @@ describe("plugin staging", () => {
     const config = buildConfig({ subject: { canonicalClient: "claude", environment: { A: "1" } } });
     await expect(stage(buildRequest(source, { client: "opencode", config }))).rejects.toThrow(/ambiente do sujeito/);
   });
+
+  it("removes every staged directory on dispose", async () => {
+    const source = createSourceRepository(SOURCE);
+    const environment = emptyEnvironment({ plugins: [{ name: "p", copy: [], files: [] }] });
+    const session = await sessionStager.stage(buildRequest(source, { evalCase: buildCase({ environment }) }));
+    const pluginDirectory = session.pluginDirectories[0] as string;
+    await session.dispose();
+    expect(existsSync(session.root)).toBe(false);
+    expect(existsSync(pluginDirectory)).toBe(false);
+  });
 });

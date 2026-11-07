@@ -194,14 +194,4 @@ describe("session stager", () => {
     expect(session.pluginDirectories).toEqual([]);
     expect(session.environment).toEqual({});
   });
-
-  it("removes every staged directory on dispose", async () => {
-    const source = createSourceRepository(SOURCE);
-    const environment = emptyEnvironment({ plugins: [{ name: "p", copy: [], files: [] }] });
-    const session = await sessionStager.stage(buildRequest(source, { evalCase: buildCase({ environment }) }));
-    const pluginDirectory = session.pluginDirectories[0] as string;
-    await session.dispose();
-    expect(existsSync(session.root)).toBe(false);
-    expect(existsSync(pluginDirectory)).toBe(false);
-  });
 });
