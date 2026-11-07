@@ -1,0 +1,4 @@
+.deep-work/
+node_modules/
+dist/
+result

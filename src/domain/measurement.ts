@@ -1,0 +1,5 @@
+export const MEASUREMENT_CONTRACT = 1;
+
+export const DEFAULT_TIMEOUT_SECONDS = 180;
+
+export const DEFAULT_PARALLELISM = 4;

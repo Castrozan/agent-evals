@@ -1,0 +1,48 @@
+{
+  "name": "agent-evals",
+  "version": "0.1.0",
+  "description": "Regression suite for AI agent instructions, scripts, hooks and MCP servers, with committed baselines",
+  "license": "MIT",
+  "type": "module",
+  "bin": {
+    "agent-evals": "./dist/cli.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "dependencies": {
+    "@anthropic-ai/claude-agent-sdk": "0.3.319",
+    "@openai/codex-sdk": "0.167.0",
+    "@opencode/client": "2.2.6",
+    "commander": "15.1.0",
+    "picomatch": "4.0.7",
+    "tinyglobby": "0.2.17",
+    "yaml": "2.9.1",
+    "zod": "4.6.7"
+  },
+  "peerDependencies": {
+    "promptfoo": ">=0.118"
+  },
+  "peerDependenciesMeta": {
+    "promptfoo": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@types/node": "22.20.5",
+    "@types/picomatch": "^4.0.0",
+    "prettier": "3.9.10",
+    "typescript": "7.0.2",
+    "vitest": "5.1.0"
+  }
+}
