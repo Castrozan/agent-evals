@@ -63,10 +63,20 @@ describe("detectLeakedSkills", () => {
   it("returns visible skills that live in the client's user skill directory", () => {
     const home = mkdtempSync(path.join(os.tmpdir(), "home-"));
     mkdirSync(path.join(home, ".codex/skills/personal"), { recursive: true });
+    writeFileSync(path.join(home, ".codex/skills/personal/SKILL.md"), "");
     mkdirSync(path.join(home, ".claude/skills/other"), { recursive: true });
-    writeFileSync(path.join(home, ".codex/skills/file.txt"), "");
-    expect(detectLeakedSkills("codex", ["personal", "demo", "other"], home)).toEqual(["personal"]);
+    writeFileSync(path.join(home, ".claude/skills/other/SKILL.md"), "");
+    mkdirSync(path.join(home, ".codex/skills/not-a-skill"), { recursive: true });
+    expect(detectLeakedSkills("codex", ["personal", "demo", "other", "not-a-skill"], home)).toEqual(["personal"]);
     expect(detectLeakedSkills("claude", ["personal", "other"], home)).toEqual(["other"]);
     expect(detectLeakedSkills("opencode", ["personal"], home)).toEqual([]);
+  });
+
+  it("flags skills delivered by an installed plugin, named with or without the plugin prefix", () => {
+    const home = mkdtempSync(path.join(os.tmpdir(), "home-"));
+    const pluginSkill = path.join(home, ".claude/plugins/cache/market/toolkit/1.0.0/skills/review");
+    mkdirSync(pluginSkill, { recursive: true });
+    writeFileSync(path.join(pluginSkill, "SKILL.md"), "");
+    expect(detectLeakedSkills("claude", ["toolkit:review", "staged-skill"], home)).toEqual(["toolkit:review"]);
   });
 });
