@@ -63,6 +63,7 @@ export interface JudgedCommand {
 
 export interface CaseAssertions {
   judge: string[];
+  equals: string[];
   contains: string[];
   notContains: string[];
   regex: string[];
