@@ -56,6 +56,10 @@ function sortedByRepetition(samples: SampleResult[]): SampleResult[] {
   return samples.sort((left, right) => left.repetition - right.repetition);
 }
 
+function everySampleMeasured(results: readonly CaseRunResult[]): boolean {
+  return results.every((result) => result.samples.every((sample) => sample.instrumentFailure === undefined));
+}
+
 export async function executeRun(options: ExecuteRunOptions): Promise<ExecutionOutcome> {
   const { config, cases, profile } = options;
   if (options.dryRun) return { kind: "plan", plan: planRun(config, cases, profile, options.repetitionsMultiplier) };
@@ -175,6 +179,7 @@ export async function executeRun(options: ExecuteRunOptions): Promise<ExecutionO
   };
   const validity = assessRunValidity(runRecord);
   if (validity.invalid) runRecord.invalid = { reason: validity.reason! };
-  discardJournal(journalPath);
+  if (everySampleMeasured(results)) discardJournal(journalPath);
+  else options.write("diário mantido: --continuar refaz só as amostras que o instrumento perdeu");
   return { kind: "record", record: runRecord };
 }

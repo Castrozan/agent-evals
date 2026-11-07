@@ -50,7 +50,7 @@ describe("executeRun", () => {
       journalPath: journalPathFor(base, base),
       ...overrides,
     });
-    return { base, common, client };
+    return { base, common, client, runtime };
   }
 
   it("runs cases, records samples and writes the run record", async () => {
@@ -132,17 +132,28 @@ describe("executeRun", () => {
     expect(outcome.record.cases[0]?.samples.every((sample) => sample.passed)).toBe(true);
   });
 
-  it("resumes from the journal only when the fingerprint matches", async () => {
-    const { common, client, base } = await setup();
+  it("keeps the journal after instrument failures and resumes only the lost samples", async () => {
+    const { common, client, base, runtime } = await setup();
     const evalCase = makeCase("c", "n", { instruction: "SKILL.md" });
     const journalPath = journalPathFor(base, base);
-    const failing = fakeClient(() => "");
-    failing.run = async () => {
-      throw new Error("queda");
+    let sessions = 0;
+    const flaky = fakeClient(() => "");
+    flaky.run = async (invocation) => {
+      sessions += 1;
+      if (sessions === 2) throw new Error("queda");
+      return client.run(invocation);
     };
-    await expect(executeRun({ ...common({ clients: () => failing }), cases: [evalCase] })).resolves.toBeDefined();
-    await executeRun({ ...common({ resume: true }), cases: [evalCase] });
-    expect(client.invocations.length).toBeGreaterThan(0);
+    const flakyExecutor = createInProcessExecutor({ ...runtime, clients: () => flaky });
+    const interrupted = await executeRun({ ...common({ executor: flakyExecutor }), cases: [evalCase] });
+    if (interrupted.kind !== "record") throw new Error("esperado registro");
+    expect(interrupted.record.cases[0]?.samples.filter((sample) => sample.instrumentFailure)).toHaveLength(1);
+    expect(existsSync(journalPath)).toBe(true);
+
+    const invocationsBeforeResume = client.invocations.length;
+    const resumed = await executeRun({ ...common({ resume: true }), cases: [evalCase] });
+    if (resumed.kind !== "record") throw new Error("esperado registro");
+    expect(resumed.record.cases[0]?.samples.every((sample) => sample.passed)).toBe(true);
+    expect(client.invocations.length - invocationsBeforeResume).toBe(2);
     expect(existsSync(journalPath)).toBe(false);
   });
 });
