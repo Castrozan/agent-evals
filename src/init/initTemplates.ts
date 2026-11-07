@@ -15,7 +15,13 @@ export function slugify(value: string): string {
 }
 
 export function configTemplate(projectName: string): string {
-  return stringify({ projeto: projectName, casos: [`${CASES_DIRECTORY}/**/*.yaml`] });
+  return stringify({
+    projeto: projectName,
+    casos: [`${CASES_DIRECTORY}/**/*.yaml`],
+    modelo_padrao: { claude: "haiku" },
+    juiz: { modelo: "opus" },
+    execucoes: { unidade: 3, integracao: 3, "ponta-a-ponta": 1 },
+  });
 }
 
 export function instructionCaseFile(artifact: DiscoveredArtifact): {
