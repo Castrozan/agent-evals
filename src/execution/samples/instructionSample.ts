@@ -50,6 +50,7 @@ export function buildInvocation(
     stagesGit: evalCase.environment?.git !== undefined && evalCase.environment.git !== false,
     pluginDirectories: staged.pluginDirectories,
     environment: subjectEnvironment(runtime, staged),
+    removedEnvironment: runtime.config.subject.removedEnvironment,
     timeoutMs: timeoutMillisecondsOf(evalCase, runtime),
     isolatedContext: false,
   };
@@ -62,6 +63,7 @@ function createJudgeGrader(evalCase: InstructionCase, runtime: SampleRuntime): G
     model: judge.model ?? subject.model,
     effort: judge.effort,
     timeoutMs: timeoutMillisecondsOf(evalCase, runtime),
+    removedEnvironment: runtime.config.subject.removedEnvironment,
   });
 }
 

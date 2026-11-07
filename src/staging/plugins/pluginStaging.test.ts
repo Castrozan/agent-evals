@@ -3,6 +3,7 @@ import path from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
 import type { StagedSession } from "../../domain/ports.js";
 import { sessionStager } from "../stager.js";
+import { createSubjectHome } from "./subjectHome.js";
 import {
   buildCase,
   buildConfig,
@@ -91,17 +92,37 @@ describe("plugin staging", () => {
     await expect(
       stage(buildRequest(source, { client: "opencode", evalCase: buildCase({ environment }) })),
     ).rejects.toThrow(/plugins/);
-    const config = buildConfig({ subject: { canonicalClient: "claude", environment: { A: "1" } } });
+    const config = buildConfig({
+      subject: { canonicalClient: "claude", environment: { A: "1" }, removedEnvironment: [] },
+    });
     await expect(stage(buildRequest(source, { client: "opencode", config }))).rejects.toThrow(/ambiente do sujeito/);
   });
 
   it("removes every staged directory on dispose", async () => {
     const source = createSourceRepository(SOURCE);
     const environment = emptyEnvironment({ plugins: [{ name: "p", copy: [], files: [] }] });
-    const session = await sessionStager.stage(buildRequest(source, { evalCase: buildCase({ environment }) }));
+    const session = await sessionStager.stage(
+      buildRequest(source, { client: "codex", evalCase: buildCase({ environment }) }),
+    );
     const pluginDirectory = session.pluginDirectories[0] as string;
+    const codexHome = session.environment.CODEX_HOME as string;
     await session.dispose();
     expect(existsSync(session.root)).toBe(false);
     expect(existsSync(pluginDirectory)).toBe(false);
+    expect(existsSync(codexHome)).toBe(false);
+  });
+
+  it("gives a plugin-less codex session the same private home without the user's plugins", async () => {
+    const subjectHome = await createSubjectHome("codex", []);
+    const home = subjectHome.environment.CODEX_HOME as string;
+    expect(
+      readdirSync(home)
+        .filter((entry) => entry !== "auth.json")
+        .sort(),
+    ).toEqual(["config.toml", "marketplace"]);
+    expect(readFileSync(path.join(home, "config.toml"), "utf8")).not.toContain("[plugins.");
+    await subjectHome.dispose();
+    expect(existsSync(home)).toBe(false);
+    expect((await createSubjectHome("claude", [])).environment).toEqual({});
   });
 });

@@ -55,12 +55,15 @@ describe("judge prompt", () => {
 describe("grade", () => {
   it("runs isolated without tools and maps failures to no-verdict", async () => {
     const client = fakeClient(() => ({ text: "VEREDITO: FAIL" }));
-    const result = await grade({ client, model: "m", timeoutMs: 1000 }, { criterion: "c", request: "", response: "r" });
+    const result = await grade(
+      { client, model: "m", timeoutMs: 1000, removedEnvironment: [] },
+      { criterion: "c", request: "", response: "r" },
+    );
     expect(result.verdict).toBe("fail");
     expect(client.invocations[0]).toMatchObject({ posture: "none", isolatedContext: true });
     const failing = fakeClient(() => ({ instrumentFailure: { kind: "timeout", message: "t" } }));
     const failed = await grade(
-      { client: failing, model: "m", timeoutMs: 1000 },
+      { client: failing, model: "m", timeoutMs: 1000, removedEnvironment: [] },
       { criterion: "c", request: "", response: "r" },
     );
     expect(failed.verdict).toBe("no-verdict");

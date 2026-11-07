@@ -65,6 +65,10 @@ Everything project-specific lives in `evals/config.yaml`. To keep it elsewhere, 
 relative to the repository root. Post-session commands and CLI cases get `AGENT_EVALS_SOURCE_ROOT`, the measured
 checkout, so a case can call the repository's own checker scripts.
 
+Subject and judge sessions inherit your shell's environment except `CLAUDECODE`. If you run evals from inside an agent
+session whose hooks or settings react to session variables, list those under `sujeito.ambiente_removido`
+(`subject.removed_environment`). Otherwise the subject behaves like your interactive session instead of a fresh one.
+
 ```yaml
 projeto: my-agent-tools
 casos: [evals/casos/**/*.yaml]

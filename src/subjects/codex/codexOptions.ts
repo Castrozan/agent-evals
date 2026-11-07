@@ -1,3 +1,4 @@
+import { inheritedEnvironment } from "../inheritedEnvironment.js";
 import type { CodexOptions, ModelReasoningEffort, SandboxMode, ThreadOptions } from "@openai/codex-sdk";
 import type { SubjectInvocation } from "../../domain/ports.js";
 
@@ -14,11 +15,6 @@ const DISABLED_FEATURES = {
 };
 
 type ConfigObject = NonNullable<CodexOptions["config"]>;
-
-function processEnvironment(overrides: Record<string, string>): Record<string, string> {
-  const inherited = Object.entries(process.env).filter((entry): entry is [string, string] => entry[1] !== undefined);
-  return { ...Object.fromEntries(inherited), ...overrides };
-}
 
 function sandboxMode(invocation: SubjectInvocation): SandboxMode {
   if (invocation.posture !== "write") return "read-only";
@@ -38,7 +34,7 @@ export function codexClientOptions(invocation: SubjectInvocation, codexHome?: st
     config.features = { ...(config.features as ConfigObject | undefined), hooks: false };
     config.project_doc_max_bytes = 0;
   }
-  const environment = processEnvironment(invocation.environment);
+  const environment = inheritedEnvironment(invocation);
   if (codexHome) environment.CODEX_HOME = codexHome;
   return {
     env: environment,

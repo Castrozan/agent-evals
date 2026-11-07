@@ -16,6 +16,7 @@ export interface SubjectInvocation {
   stagesGit: boolean;
   pluginDirectories: string[];
   environment: Record<string, string>;
+  removedEnvironment: string[];
   timeoutMs: number;
   isolatedContext: boolean;
 }

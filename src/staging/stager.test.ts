@@ -177,7 +177,9 @@ describe("session stager", () => {
 
   it("substitutes {sessao} in config and variant environment, variant overriding", async () => {
     const source = createSourceRepository(SOURCE);
-    const config = buildConfig({ subject: { canonicalClient: "claude", environment: { A: "{sessao}/a", B: "b" } } });
+    const config = buildConfig({
+      subject: { canonicalClient: "claude", environment: { A: "{sessao}/a", B: "b" }, removedEnvironment: [] },
+    });
     const session = await stage(buildRequest(source, { config, variantEnvironment: { B: "{sessao}/v" } }));
     expect(session.environment).toEqual({ A: `${session.sessionDirectory}/a`, B: `${session.sessionDirectory}/v` });
   });

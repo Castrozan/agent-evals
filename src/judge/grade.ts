@@ -10,6 +10,7 @@ export interface JudgeSettings {
   model: string;
   effort?: string;
   timeoutMs: number;
+  removedEnvironment: string[];
 }
 
 export interface GradeResult {
@@ -32,6 +33,7 @@ export async function grade(settings: JudgeSettings, input: JudgeInput): Promise
       stagesGit: false,
       pluginDirectories: [],
       environment: {},
+      removedEnvironment: settings.removedEnvironment,
       timeoutMs: settings.timeoutMs,
       isolatedContext: true,
     });

@@ -1,3 +1,4 @@
+import { inheritedEnvironment } from "../inheritedEnvironment.js";
 import type { EffortLevel, Options } from "@anthropic-ai/claude-agent-sdk";
 import type { SessionPosture, SubjectInvocation } from "../../domain/ports.js";
 
@@ -10,11 +11,6 @@ const TOOLS_BY_POSTURE: Record<SessionPosture, string[]> = {
   write: WRITE_TOOLS,
 };
 
-function processEnvironment(overrides: Record<string, string>): Record<string, string> {
-  const inherited = Object.entries(process.env).filter((entry): entry is [string, string] => entry[1] !== undefined);
-  return { ...Object.fromEntries(inherited), ...overrides };
-}
-
 export function claudeQueryOptions(invocation: SubjectInvocation, abortController: AbortController): Options {
   const tools = TOOLS_BY_POSTURE[invocation.posture];
   const options: Options = {
@@ -23,7 +19,7 @@ export function claudeQueryOptions(invocation: SubjectInvocation, abortControlle
     tools,
     allowedTools: tools,
     settingSources: invocation.isolatedContext ? [] : ["project"],
-    env: processEnvironment(invocation.environment),
+    env: inheritedEnvironment(invocation),
     abortController,
     plugins: invocation.pluginDirectories.map((directory) => ({ type: "local", path: directory })),
     ...(invocation.posture === "write"

@@ -26,6 +26,7 @@ export function registerCalibrateCommand(program: Command): void {
         model: config.judge.model,
         effort: config.judge.effort,
         timeoutMs: config.timeoutSeconds * 1000,
+        removedEnvironment: config.subject.removedEnvironment,
       });
       const run = await runCalibration({ corpus: readCalibrationCorpus(corpusPath), grader, passes, judge });
       for (const [index, metrics] of run.passMetrics.entries()) {

@@ -8,7 +8,7 @@ import { rejectUnsupportedOpencodeInputs, subjectEnvironment } from "./environme
 import { applyAdjustments, applyRemovals, writeStagedFiles } from "./workspace/fileEdits.js";
 import { initializeRepository } from "./workspace/git.js";
 import { applyLayers } from "./workspace/layers.js";
-import { prepareCodexHome } from "./plugins/codexHome.js";
+import { createSubjectHome, type SubjectHome } from "./plugins/subjectHome.js";
 import { isInside, resolveInside } from "./pathSafety.js";
 import { assemblePlugin, pluginName } from "./plugins/pluginAssembler.js";
 import { installSkills } from "./skillInstaller.js";
@@ -72,11 +72,10 @@ export const sessionStager: SessionStager = {
     }
     const root = await mkdtemp(path.join(os.tmpdir(), "agent-evals-session-"));
     const pluginsRoot = await mkdtemp(path.join(os.tmpdir(), "agent-evals-plugins-"));
-    const codexHome = client === "codex" ? await mkdtemp(path.join(os.tmpdir(), "agent-evals-codex-")) : undefined;
+    let subjectHome: SubjectHome | undefined;
     const dispose = async () => {
-      for (const directory of [root, pluginsRoot, codexHome]) {
-        if (directory) await rm(directory, { recursive: true, force: true });
-      }
+      for (const directory of [root, pluginsRoot]) await rm(directory, { recursive: true, force: true });
+      await subjectHome?.dispose();
     };
     try {
       const sessionDirectory = resolveInside(root, environment.sessionIn ?? ".", "diretório da sessão");
@@ -106,11 +105,8 @@ export const sessionStager: SessionStager = {
       }
       const plugins = collectPlugins(request, casePlugins);
       const pluginDirectories = await assemblePlugins(plugins, request, pluginsRoot);
-      const variables = subjectEnvironment(request, sessionDirectory);
-      if (codexHome) {
-        await prepareCodexHome(codexHome, pluginDirectories);
-        variables.CODEX_HOME = codexHome;
-      }
+      subjectHome = await createSubjectHome(client, pluginDirectories);
+      const variables = { ...subjectEnvironment(request, sessionDirectory), ...subjectHome.environment };
       return { root, sessionDirectory, pluginDirectories, environment: variables, dispose };
     } catch (error) {
       await dispose();

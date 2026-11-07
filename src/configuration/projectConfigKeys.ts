@@ -32,6 +32,7 @@ export const projectConfigKeys: KeySchema = {
     objectShape({
       client: keyRule("cliente", "client"),
       environment: keyRule("ambiente", "environment"),
+      removedEnvironment: keyRule("ambiente_removido", "removed_environment"),
     }),
   ),
   judge: keyRule(

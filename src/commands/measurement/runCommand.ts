@@ -9,6 +9,7 @@ import { createPromptfooExecutor, executeRun, renderPlan } from "../../execution
 import { detectLeakedSkills, prepareWorkingTree } from "../../isolation/index.js";
 import { buildExecutionProfile, profileId } from "../../profile/index.js";
 import { createRuntimeServices } from "../../runtime/services.js";
+import { createSubjectHome } from "../../staging/index.js";
 import { readBaseline, resolveBaselinePath } from "../../baseline/index.js";
 import { isCanonicalProfile } from "../../profile/index.js";
 import { writeLastRun } from "../lastRun.js";
@@ -44,9 +45,15 @@ function positiveInteger(value: string | undefined, flag: string): number | unde
 
 const write = (line: string) => process.stdout.write(`${line}\n`);
 
-async function probeLeakedSkills(client: ClientName, model: string, workingDirectory: string): Promise<string[]> {
+async function probeLeakedSkills(
+  client: ClientName,
+  model: string,
+  workingDirectory: string,
+  removedEnvironment: string[],
+): Promise<string[]> {
   const services = createRuntimeServices();
   const probeDirectory = fs.mkdtempSync(path.join(os.tmpdir(), "agent-evals-sondagem-"));
+  const subjectHome = await createSubjectHome(client, []);
   try {
     const visible = await services.clients(client).visibleSkills({
       client,
@@ -56,7 +63,8 @@ async function probeLeakedSkills(client: ClientName, model: string, workingDirec
       posture: "none",
       stagesGit: false,
       pluginDirectories: [],
-      environment: {},
+      environment: subjectHome.environment,
+      removedEnvironment,
       timeoutMs: 120_000,
       isolatedContext: false,
     });
@@ -66,6 +74,7 @@ async function probeLeakedSkills(client: ClientName, model: string, workingDirec
     return [];
   } finally {
     fs.rmSync(probeDirectory, { recursive: true, force: true });
+    await subjectHome.dispose();
   }
 }
 
@@ -119,7 +128,12 @@ export async function performRun(context: ProjectContext, options: RunOptions): 
     }
     const record = outcome.record;
     if (cases.some(callsModel)) {
-      record.leakedSkills = await probeLeakedSkills(client, profile.subject.model, workingTree.directory);
+      record.leakedSkills = await probeLeakedSkills(
+        client,
+        profile.subject.model,
+        workingTree.directory,
+        config.subject.removedEnvironment,
+      );
     }
     writeLastRun(config, record);
     await publishRunReport(context, record);

@@ -47,7 +47,7 @@ casos:
   skill: [evals/skills/*.yaml]
 modelo_padrao: {claude: opus}
 esforco_padrao: high
-sujeito: {cliente: codex, ambiente: {HOME: "{sessao}"}}
+sujeito: {cliente: codex, ambiente: {HOME: "{sessao}"}, ambiente_removido: [SESSION_MARKER]}
 execucoes: {ponta-a-ponta: 3, unidade: 2}
 limites: {piso_geral: 0.5}
 suite_de_testes: {comando: npm test, contagem: "(?<passou>\\\\d+) ok"}
@@ -60,7 +60,11 @@ variantes:
       skill: ["evals/skills/*.yaml"],
     });
     expect(portuguese.defaultEffort).toEqual({ scalar: "high", byClient: {} });
-    expect(portuguese.subject).toEqual({ canonicalClient: "codex", environment: { HOME: "{sessao}" } });
+    expect(portuguese.subject).toEqual({
+      canonicalClient: "codex",
+      environment: { HOME: "{sessao}" },
+      removedEnvironment: ["SESSION_MARKER"],
+    });
     expect(portuguese.repetitionsByLevel).toEqual({ unit: 2, integration: 1, "end-to-end": 3 });
     expect(portuguese.thresholds.overallFloor).toBe(0.5);
     expect(portuguese.testSuite?.command).toBe("npm test");
@@ -71,7 +75,7 @@ project: demo
 cases: {package: evals/pkg/*.yaml, skill: [evals/skills/*.yaml]}
 default_model: {claude: opus}
 default_effort: high
-subject: {client: codex, environment: {HOME: "{sessao}"}}
+subject: {client: codex, environment: {HOME: "{sessao}"}, removed_environment: [SESSION_MARKER]}
 repetitions: {end-to-end: 3, unit: 2}
 thresholds: {overall_floor: 0.5}
 test_suite: {command: npm test, count: "(?<passed>\\\\d+) ok"}

@@ -12,6 +12,7 @@ export interface OpencodeServer {
 export interface OpencodeServerRequest {
   directory: string;
   configuration: Record<string, unknown>;
+  environment: Record<string, string>;
   signal: AbortSignal;
   command?: string;
   startupTimeoutMs?: number;
@@ -41,14 +42,14 @@ function signalGroup(processId: number | undefined, signal: NodeJS.Signals): voi
 }
 
 export async function startOpencodeServer(request: OpencodeServerRequest): Promise<OpencodeServer> {
-  const { directory, configuration, signal, command = "opencode", startupTimeoutMs = 15000 } = request;
+  const { directory, configuration, environment, signal, command = "opencode", startupTimeoutMs = 15000 } = request;
   signal.throwIfAborted();
   const port = await findFreePort();
   const password = randomUUID();
   const child = spawn(command, ["serve", "--hostname", "127.0.0.1", "--port", String(port)], {
     cwd: directory,
     env: {
-      ...process.env,
+      ...environment,
       OPENCODE_PASSWORD: password,
       OPENCODE_CONFIG_CONTENT: JSON.stringify(configuration),
       OPENCODE_DISABLE_AUTOUPDATE: "true",

@@ -10,6 +10,7 @@ export function buildInvocation(overrides: Partial<SubjectInvocation> = {}): Sub
     stagesGit: false,
     pluginDirectories: [],
     environment: {},
+    removedEnvironment: [],
     timeoutMs: 5000,
     isolatedContext: false,
     ...overrides,

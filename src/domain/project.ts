@@ -39,7 +39,7 @@ export interface ProjectConfig {
   pagesUrl?: string;
   defaultModel: ClientScopedValue;
   defaultEffort: ClientScopedValue;
-  subject: { canonicalClient: ClientName; environment: Record<string, string> };
+  subject: { canonicalClient: ClientName; environment: Record<string, string>; removedEnvironment: string[] };
   judge: { client: ClientName; model?: string; effort?: string; calibrationPath: string };
   discovery: { instructions: string[]; ignore: string[] };
   validateInstructionFormat: boolean;

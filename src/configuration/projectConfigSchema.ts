@@ -75,9 +75,13 @@ export const projectConfigSchema = z
     defaultModel: clientScopedValue.default({ byClient: {} }),
     defaultEffort: clientScopedValue.default({ byClient: {} }),
     subject: z
-      .object({ client: clientName.default("claude"), environment: environmentVariables.default({}) })
+      .object({
+        client: clientName.default("claude"),
+        environment: environmentVariables.default({}),
+        removedEnvironment: z.array(nonEmptyText).default([]),
+      })
       .strict()
-      .default({ client: "claude", environment: {} }),
+      .default({ client: "claude", environment: {}, removedEnvironment: [] }),
     judge: z
       .object({
         model: nonEmptyText.optional(),
@@ -163,7 +167,11 @@ export function toProjectConfig(
     pagesUrl: parsed.pagesUrl,
     defaultModel: parsed.defaultModel,
     defaultEffort: parsed.defaultEffort,
-    subject: { canonicalClient: parsed.subject.client, environment: parsed.subject.environment },
+    subject: {
+      canonicalClient: parsed.subject.client,
+      environment: parsed.subject.environment,
+      removedEnvironment: parsed.subject.removedEnvironment,
+    },
     judge: {
       client: parsed.judge.client,
       model: parsed.judge.model,

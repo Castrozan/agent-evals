@@ -17,6 +17,7 @@ describe("opencode server", () => {
     const server = await startOpencodeServer({
       directory: process.cwd(),
       configuration: {},
+      environment: {},
       signal: controller.signal,
       command: fakeCommand,
     });
@@ -29,6 +30,7 @@ describe("opencode server", () => {
       startOpencodeServer({
         directory: process.cwd(),
         configuration: {},
+        environment: {},
         signal: new AbortController().signal,
         command: "false",
       }),

@@ -1,3 +1,4 @@
+import { inheritedEnvironment } from "../inheritedEnvironment.js";
 import type { SessionMessageInfo } from "@opencode/client";
 import { classifyFailure } from "../failures.js";
 import {
@@ -23,6 +24,7 @@ const executeOpencode: SessionExecutor = async (invocation, observation, signal)
   const server = await startOpencodeServer({
     directory: invocation.workingDirectory,
     configuration: opencodeServerConfiguration(invocation),
+    environment: inheritedEnvironment(invocation),
     signal,
   });
   try {

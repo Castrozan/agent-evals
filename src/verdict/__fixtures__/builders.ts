@@ -13,7 +13,7 @@ export function makeConfig(overrides: Partial<ProjectConfig> = {}): ProjectConfi
     pagesDirectory: "public",
     defaultModel: { scalar: "model-a", byClient: {} },
     defaultEffort: { byClient: {} },
-    subject: { canonicalClient: "claude", environment: {} },
+    subject: { canonicalClient: "claude", environment: {}, removedEnvironment: [] },
     judge: { client: "claude", model: "judge-model", calibrationPath: "evals/calibracao.yaml" },
     discovery: { instructions: ["CLAUDE.md"], ignore: [] },
     validateInstructionFormat: true,
