@@ -60,6 +60,7 @@ async function probeLeakedSkills(
       model,
       prompt: "",
       workingDirectory: probeDirectory,
+      sessionRoot: probeDirectory,
       posture: "none",
       stagesGit: false,
       pluginDirectories: [],

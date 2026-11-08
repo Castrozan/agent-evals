@@ -76,6 +76,7 @@ describe("claude subject client", () => {
     const options = queryMock.mock.calls[0]?.[0].options;
     expect(options.tools).toEqual(["Read", "Glob", "Grep", "Skill", "Write", "Edit", "Bash"]);
     expect(options.permissionMode).toBe("bypassPermissions");
+    expect(options.sandbox).toMatchObject({ enabled: true, allowUnsandboxedCommands: false, failIfUnavailable: true });
     expect(options.settingSources).toEqual([]);
     expect(options.effort).toBe("high");
     expect(options.systemPrompt).toEqual({ type: "preset", preset: "claude_code", append: "regra" });

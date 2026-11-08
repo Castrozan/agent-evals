@@ -12,6 +12,7 @@ export interface SubjectInvocation {
   systemPrompt?: string;
   prompt: string;
   workingDirectory: string;
+  sessionRoot: string;
   posture: SessionPosture;
   stagesGit: boolean;
   pluginDirectories: string[];

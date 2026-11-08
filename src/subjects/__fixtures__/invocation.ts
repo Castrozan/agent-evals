@@ -6,6 +6,7 @@ export function buildInvocation(overrides: Partial<SubjectInvocation> = {}): Sub
     model: "model-x",
     prompt: "pergunta",
     workingDirectory: "/tmp/sessao",
+    sessionRoot: "/tmp/sessao",
     posture: "read-only",
     stagesGit: false,
     pluginDirectories: [],

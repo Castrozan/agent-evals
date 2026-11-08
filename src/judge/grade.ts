@@ -29,6 +29,7 @@ export async function grade(settings: JudgeSettings, input: JudgeInput): Promise
       effort: settings.effort,
       prompt: buildJudgePrompt(input),
       workingDirectory,
+      sessionRoot: workingDirectory,
       posture: "none",
       stagesGit: false,
       pluginDirectories: [],

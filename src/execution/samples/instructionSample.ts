@@ -46,6 +46,7 @@ export function buildInvocation(
     systemPrompt: unit ? buildUnitSystemPrompt(evalCase, runtime.sourceRoot) : evalCase.systemPrompt,
     prompt: evalCase.prompt,
     workingDirectory: staged.sessionDirectory,
+    sessionRoot: staged.root,
     posture: unit ? "none" : evalCase.writes ? "write" : "read-only",
     stagesGit: evalCase.environment?.git !== undefined && evalCase.environment.git !== false,
     pluginDirectories: staged.pluginDirectories,

@@ -5,6 +5,9 @@ import { buildInvocation } from "../__fixtures__/invocation.js";
 const constructorMock = vi.hoisted(() => vi.fn());
 const startThreadMock = vi.hoisted(() => vi.fn());
 const runStreamedMock = vi.hoisted(() => vi.fn());
+const sandboxMock = vi.hoisted(() => vi.fn());
+
+vi.mock("./codexSandbox.js", () => ({ sandboxCodex: sandboxMock }));
 
 vi.mock("@openai/codex-sdk", () => ({
   Codex: class {
@@ -93,12 +96,29 @@ describe("codex subject client", () => {
     });
   });
 
-  it("uses danger-full-access when the case writes and stages git", async () => {
+  it("confines a git-staging write session to the bubblewrap sandbox", async () => {
     streamOf([]);
-    await codexSubjectClient.run(codexInvocation({ posture: "write", stagesGit: true }));
+    const sessionRoot = await mkdtemp("/tmp/agent-evals-test-session-");
+    const dispose = vi.fn();
+    sandboxMock.mockResolvedValue({ binary: "/sandbox/codex", dispose });
+    const confined = await codexSubjectClient.run(
+      codexInvocation({
+        posture: "write",
+        stagesGit: true,
+        sessionRoot,
+        workingDirectory: sessionRoot,
+        environment: { CODEX_HOME: sessionRoot },
+      }),
+    );
+    expect(confined.instrumentFailure).toBeUndefined();
     await codexSubjectClient.run(codexInvocation({ posture: "write", stagesGit: false }));
     expect(startThreadMock.mock.calls[0]?.[0].sandboxMode).toBe("danger-full-access");
+    expect(constructorMock.mock.calls[0]?.[0].codexPathOverride).toBe("/sandbox/codex");
+    expect(sandboxMock.mock.calls[0]?.[0]).toMatchObject({ writableRoot: sessionRoot, codexHome: sessionRoot });
+    expect(dispose).toHaveBeenCalled();
+    expect(sandboxMock).toHaveBeenCalledTimes(1);
     expect(startThreadMock.mock.calls[1]?.[0].sandboxMode).toBe("workspace-write");
+    expect(constructorMock.mock.calls[1]?.[0].codexPathOverride).toBeUndefined();
   });
 
   it("passes the subject environment and the PATH codex for plugin cases", async () => {

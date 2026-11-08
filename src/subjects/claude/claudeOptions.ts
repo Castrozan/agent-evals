@@ -5,6 +5,13 @@ import type { SessionPosture, SubjectInvocation } from "../../domain/ports.js";
 const READ_TOOLS = ["Read", "Glob", "Grep", "Skill"];
 const WRITE_TOOLS = [...READ_TOOLS, "Write", "Edit", "Bash"];
 
+const CONFINED_BASH = {
+  enabled: true,
+  autoAllowBashIfSandboxed: true,
+  allowUnsandboxedCommands: false,
+  failIfUnavailable: true,
+};
+
 const TOOLS_BY_POSTURE: Record<SessionPosture, string[]> = {
   none: [],
   "read-only": READ_TOOLS,
@@ -23,7 +30,11 @@ export function claudeQueryOptions(invocation: SubjectInvocation, abortControlle
     abortController,
     plugins: invocation.pluginDirectories.map((directory) => ({ type: "local", path: directory })),
     ...(invocation.posture === "write"
-      ? { permissionMode: "bypassPermissions", allowDangerouslySkipPermissions: true }
+      ? {
+          permissionMode: "bypassPermissions",
+          allowDangerouslySkipPermissions: true,
+          sandbox: CONFINED_BASH,
+        }
       : { permissionMode: "dontAsk" }),
   };
   if (invocation.effort) options.effort = invocation.effort as EffortLevel;

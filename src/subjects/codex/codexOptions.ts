@@ -21,7 +21,20 @@ function sandboxMode(invocation: SubjectInvocation): SandboxMode {
   return invocation.stagesGit ? "danger-full-access" : "workspace-write";
 }
 
-export function codexClientOptions(invocation: SubjectInvocation, codexHome?: string): CodexOptions {
+export function requiresSessionSandbox(invocation: SubjectInvocation): boolean {
+  return sandboxMode(invocation) === "danger-full-access";
+}
+
+function binaryOverride(invocation: SubjectInvocation, sandboxedBinary?: string): string | undefined {
+  if (sandboxedBinary) return sandboxedBinary;
+  return invocation.pluginDirectories.length > 0 ? "codex" : undefined;
+}
+
+export function codexClientOptions(
+  invocation: SubjectInvocation,
+  codexHome?: string,
+  sandboxedBinary?: string,
+): CodexOptions {
   const config: ConfigObject = {};
   if (invocation.systemPrompt) config.developer_instructions = invocation.systemPrompt;
   if (invocation.posture === "none") {
@@ -39,7 +52,9 @@ export function codexClientOptions(invocation: SubjectInvocation, codexHome?: st
   return {
     env: environment,
     ...(Object.keys(config).length > 0 ? { config } : {}),
-    ...(invocation.pluginDirectories.length > 0 ? { codexPathOverride: "codex" } : {}),
+    ...(binaryOverride(invocation, sandboxedBinary)
+      ? { codexPathOverride: binaryOverride(invocation, sandboxedBinary) }
+      : {}),
   };
 }
 

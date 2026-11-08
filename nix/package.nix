@@ -4,6 +4,8 @@
   nodejs_22,
   makeWrapper,
   promptfoo,
+  bubblewrap,
+  socat,
   autoPatchelfHook,
   stdenv,
 }:
@@ -30,7 +32,15 @@ buildNpmPackage {
   autoPatchelfIgnoreMissingDeps = true;
 
   postInstall = ''
-    wrapProgram $out/bin/agent-evals --prefix PATH : ${lib.makeBinPath [ promptfoo ]}
+    wrapProgram $out/bin/agent-evals --prefix PATH : ${
+      lib.makeBinPath (
+        [ promptfoo ]
+        ++ lib.optionals stdenv.isLinux [
+          bubblewrap
+          socat
+        ]
+      )
+    }
   '';
 
   meta = {
