@@ -1,6 +1,6 @@
 import type { Command } from "commander";
-import { findRepositoryRoot } from "../configuration/index.js";
-import { initializeProject } from "../init/index.js";
+import { findRepositoryRoot } from "../inputs/configuration/index.js";
+import { initializeProject } from "../inputs/init/index.js";
 
 export function registerInitCommand(program: Command): void {
   program

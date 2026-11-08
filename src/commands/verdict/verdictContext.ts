@@ -1,10 +1,10 @@
-import { findRubricViolations } from "../../cases/index.js";
+import { findRubricViolations } from "../../inputs/cases/index.js";
 import type { Baseline } from "../../domain/baseline.js";
 import { caseKey } from "../../domain/cases.js";
-import { instructionFingerprints } from "../../fingerprint/index.js";
-import { checkInstructions } from "../../instructions/index.js";
-import { buildExecutionProfile, profileId } from "../../profile/index.js";
-import { evaluateVerdict } from "../../verdict/index.js";
+import { instructionFingerprints } from "../../inputs/fingerprint/index.js";
+import { checkInstructions } from "../../inputs/instructions/index.js";
+import { buildExecutionProfile, profileId } from "../../measurement/profile/index.js";
+import { evaluateVerdict } from "../../evidence/verdict/index.js";
 import type { Verdict } from "../../domain/baseline.js";
 import type { ProjectContext } from "../projectContext.js";
 

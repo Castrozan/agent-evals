@@ -2,7 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import type { ProjectConfig } from "../domain/project.js";
 import type { RunRecord } from "../domain/results.js";
-import { reportPathsFor } from "../reporting/index.js";
+import { reportPathsFor } from "../evidence/reporting/index.js";
 
 const LAST_RUN_FILE = "execucao.json";
 

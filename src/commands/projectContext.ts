@@ -1,5 +1,5 @@
-import { loadCases } from "../cases/index.js";
-import { loadProjectConfig, resolveProjectLocation } from "../configuration/index.js";
+import { loadCases } from "../inputs/cases/index.js";
+import { loadProjectConfig, resolveProjectLocation } from "../inputs/configuration/index.js";
 import type { EvalCase } from "../domain/cases.js";
 import type { ProjectConfig } from "../domain/project.js";
 

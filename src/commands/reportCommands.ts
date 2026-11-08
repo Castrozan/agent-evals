@@ -11,7 +11,7 @@ import {
   reportPathsFor,
   runTestSuite,
   saveTestSuiteCard,
-} from "../reporting/index.js";
+} from "../evidence/reporting/index.js";
 import { readLastRun } from "./lastRun.js";
 import { loadProjectContext } from "./projectContext.js";
 import { publishRunReport } from "./reportAssembly.js";

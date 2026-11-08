@@ -1,8 +1,8 @@
 import path from "node:path";
 import type { Command } from "commander";
-import { loadProjectConfig, resolveProjectLocation } from "../configuration/index.js";
-import { discoverArtifacts } from "../discovery/index.js";
-import { checkInstructions, formatInstructionFailure } from "../instructions/index.js";
+import { loadProjectConfig, resolveProjectLocation } from "../inputs/configuration/index.js";
+import { discoverArtifacts } from "../inputs/discovery/index.js";
+import { checkInstructions, formatInstructionFailure } from "../inputs/instructions/index.js";
 
 export function registerCheckInstructionsCommand(program: Command): void {
   program

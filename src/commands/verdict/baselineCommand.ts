@@ -1,6 +1,6 @@
 import path from "node:path";
 import type { Command } from "commander";
-import { mergeBaseline, writeBaseline } from "../../baseline/index.js";
+import { mergeBaseline, writeBaseline } from "../../evidence/baseline/index.js";
 import { caseKey } from "../../domain/cases.js";
 import type { RunRecord } from "../../domain/results.js";
 import { baselineForRun, baselinePathForRun } from "./baselineLocation.js";

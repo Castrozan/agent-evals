@@ -1,14 +1,14 @@
 import fs from "node:fs";
 import path from "node:path";
-import { mergeBaseline } from "../baseline/index.js";
-import { listPendingCases } from "../cases/index.js";
+import { mergeBaseline } from "../evidence/baseline/index.js";
+import { listPendingCases } from "../inputs/cases/index.js";
 import {
   calibrationRecordPath,
   corpusFingerprint,
   isCalibrationStale,
   readCalibrationRecord,
-} from "../calibration/index.js";
-import { computeCoverage, discoverArtifacts } from "../discovery/index.js";
+} from "../measurement/calibration/index.js";
+import { computeCoverage, discoverArtifacts } from "../inputs/discovery/index.js";
 import type { Verdict } from "../domain/baseline.js";
 import { caseKey } from "../domain/cases.js";
 import type { RunRecord } from "../domain/results.js";
@@ -18,7 +18,7 @@ import {
   renderTerminalSummary,
   writeReport,
   type ReportDocument,
-} from "../reporting/index.js";
+} from "../evidence/reporting/index.js";
 import { baselineForRun } from "./verdict/baselineLocation.js";
 import type { ProjectContext } from "./projectContext.js";
 import { judgeVerdict } from "./verdict/verdictContext.js";

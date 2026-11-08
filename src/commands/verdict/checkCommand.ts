@@ -1,7 +1,7 @@
 import path from "node:path";
 import type { Command } from "commander";
-import { previousCommittedBaseline, readBaseline } from "../../baseline/index.js";
-import { judgeRecordedEvidenceOnly, renderVerdict } from "../../verdict/index.js";
+import { previousCommittedBaseline, readBaseline } from "../../evidence/baseline/index.js";
+import { judgeRecordedEvidenceOnly, renderVerdict } from "../../evidence/verdict/index.js";
 import { loadProjectContext } from "../projectContext.js";
 import { judgeVerdict } from "./verdictContext.js";
 

@@ -1,9 +1,9 @@
-import { selectCases } from "../../cases/index.js";
-import { normalizePartition } from "../../configuration/index.js";
+import { selectCases } from "../../inputs/cases/index.js";
+import { normalizePartition } from "../../inputs/configuration/index.js";
 import type { Baseline } from "../../domain/baseline.js";
 import { caseKey, type EvalCase } from "../../domain/cases.js";
 import type { RunSelection } from "../../domain/results.js";
-import { caseFingerprint, selectAffectedCases } from "../../fingerprint/index.js";
+import { caseFingerprint, selectAffectedCases } from "../../inputs/fingerprint/index.js";
 import type { ProjectContext } from "../projectContext.js";
 
 export interface RunSelectionOptions {
