@@ -119,6 +119,7 @@ describe("codex subject client", () => {
     expect(sandboxMock).toHaveBeenCalledTimes(1);
     expect(startThreadMock.mock.calls[1]?.[0].sandboxMode).toBe("workspace-write");
     expect(constructorMock.mock.calls[1]?.[0].codexPathOverride).toBeUndefined();
+    await rm(sessionRoot, { recursive: true, force: true });
   });
 
   it("passes the subject environment and the PATH codex for plugin cases", async () => {
