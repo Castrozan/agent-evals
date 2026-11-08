@@ -1,10 +1,10 @@
 import { spawn } from "node:child_process";
 import fs from "node:fs/promises";
-import path from "node:path";
+import { glob } from "tinyglobby";
 import type { TestSuiteCard } from "../../../domain/artifacts.js";
 import type { TestSuiteDeclaration } from "../../../domain/project.js";
 import { parseCountPattern } from "./countPattern.js";
-import { parseJunit, type SuiteCounts } from "./junit.js";
+import { addCounts, parseJunit, type SuiteCounts } from "./junit.js";
 
 const OUTPUT_LIMIT = 1_000_000;
 
@@ -40,17 +40,32 @@ function runCommand(command: string, root: string): Promise<CommandResult> {
   });
 }
 
-async function readCounts(
-  declaration: TestSuiteDeclaration,
-  root: string,
-  output: string,
-): Promise<SuiteCounts | undefined> {
-  if (declaration.junitPath) {
-    const xml = await fs.readFile(path.resolve(root, declaration.junitPath), "utf8").catch(() => undefined);
-    const counts = xml === undefined ? undefined : parseJunit(xml);
-    if (counts) return counts;
+interface RecordedReports {
+  counts?: SuiteCounts;
+  fileCount: number;
+}
+
+async function readJunitReports(patterns: readonly string[], root: string): Promise<RecordedReports> {
+  if (patterns.length === 0) return { fileCount: 0 };
+  const files = (await glob([...patterns], { cwd: root, absolute: true, onlyFiles: true })).sort();
+  let counts: SuiteCounts | undefined;
+  for (const file of files) {
+    const fileCounts = parseJunit(await fs.readFile(file, "utf8"));
+    if (fileCounts) counts = counts ? addCounts(counts, fileCounts) : fileCounts;
   }
-  return declaration.countPattern ? parseCountPattern(declaration.countPattern, output) : undefined;
+  return { counts, fileCount: files.length };
+}
+
+function recordedSuiteExitCode(counts: SuiteCounts | undefined): number {
+  if (counts?.tests === undefined) return 1;
+  return (counts.failures ?? 0) + (counts.errors ?? 0) > 0 ? 1 : 0;
+}
+
+function describeRecordedReports(patterns: readonly string[], reports: RecordedReports): string {
+  const totals = reports.counts
+    ? `${reports.counts.tests ?? 0} testes, ${reports.counts.failures ?? 0} falhas, ${reports.counts.errors ?? 0} erros`
+    : "nenhuma contagem";
+  return `${reports.fileCount} relatórios JUnit em ${patterns.join(", ")}: ${totals}\n`;
 }
 
 export async function runTestSuite(
@@ -59,18 +74,24 @@ export async function runTestSuite(
   commit?: string,
 ): Promise<TestSuiteRun> {
   const ranAt = new Date().toISOString();
-  const result = await runCommand(declaration.command, root);
-  const counts = await readCounts(declaration, root, result.output);
+  const result = declaration.command === undefined ? undefined : await runCommand(declaration.command, root);
+  const reports = await readJunitReports(declaration.junitPatterns, root);
+  const counts =
+    reports.counts ??
+    (declaration.countPattern && result ? parseCountPattern(declaration.countPattern, result.output) : undefined);
   const card: TestSuiteCard = {
     label: declaration.label,
     ranAt,
     commit,
-    exitCode: result.exitCode,
+    exitCode: result?.exitCode ?? recordedSuiteExitCode(reports.counts),
     tests: counts?.tests,
     failures: counts?.failures,
     errors: counts?.errors,
     skipped: counts?.skipped,
-    durationSeconds: counts?.durationSeconds ?? result.durationSeconds,
+    durationSeconds: counts?.durationSeconds ?? result?.durationSeconds,
   };
-  return { card: JSON.parse(JSON.stringify(card)) as TestSuiteCard, output: result.output };
+  return {
+    card: JSON.parse(JSON.stringify(card)) as TestSuiteCard,
+    output: result?.output ?? describeRecordedReports(declaration.junitPatterns, reports),
+  };
 }

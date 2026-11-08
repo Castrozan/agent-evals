@@ -31,7 +31,7 @@ function countsOf(attributes: Record<string, string>): SuiteCounts {
   };
 }
 
-function addCounts(total: SuiteCounts, next: SuiteCounts): SuiteCounts {
+export function addCounts(total: SuiteCounts, next: SuiteCounts): SuiteCounts {
   const sum = (first?: number, second?: number) =>
     first === undefined && second === undefined ? undefined : (first ?? 0) + (second ?? 0);
   return {

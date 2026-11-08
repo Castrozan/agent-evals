@@ -47,15 +47,18 @@ const countPattern = z.string().superRefine((pattern, context) => {
 
 const testSuite = z
   .object({
-    command: nonEmptyText,
-    junit: nonEmptyText.optional(),
+    command: nonEmptyText.optional(),
+    junit: casePatternList.optional(),
     count: countPattern.optional(),
     label: nonEmptyText.optional(),
   })
   .strict()
+  .refine((suite) => suite.command !== undefined || suite.junit !== undefined, {
+    message: "suite_de_testes precisa de comando ou de junit",
+  })
   .transform((suite) => ({
     command: suite.command,
-    junitPath: suite.junit,
+    junitPatterns: suite.junit ?? [],
     countPattern: suite.count,
     label: suite.label,
   }));

@@ -114,6 +114,18 @@ variants:
     writeConfig('suite_de_testes: {comando: x, contagem: "\\\\d+"}\n');
     expect(() => loadProjectConfig(root)).toThrow(/passou/);
   });
+
+  it("reads a test suite recorded elsewhere from junit globs and rejects one with neither source", () => {
+    writeConfig("suite_de_testes: {junit: [a/*.xml, b.xml], rotulo: tradicional}\n");
+    expect(loadProjectConfig(root).testSuite).toEqual({
+      command: undefined,
+      junitPatterns: ["a/*.xml", "b.xml"],
+      countPattern: undefined,
+      label: "tradicional",
+    });
+    writeConfig("suite_de_testes: {rotulo: vazio}\n");
+    expect(() => loadProjectConfig(root)).toThrow(/comando ou de junit/);
+  });
 });
 
 describe("findRepositoryRoot", () => {

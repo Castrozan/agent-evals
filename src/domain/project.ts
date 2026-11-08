@@ -12,8 +12,8 @@ export interface Thresholds {
 }
 
 export interface TestSuiteDeclaration {
-  command: string;
-  junitPath?: string;
+  command?: string;
+  junitPatterns: string[];
   countPattern?: string;
   label?: string;
 }

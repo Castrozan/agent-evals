@@ -42,6 +42,7 @@ describe("runTestSuite", () => {
     const run = await runTestSuite(
       {
         command: "echo '4 passed, 1 failed'; exit 3",
+        junitPatterns: [],
         countPattern: "(?<passed>\\d+) passed, (?<failed>\\d+) failed",
         label: "unit",
       },
@@ -60,9 +61,32 @@ describe("runTestSuite", () => {
   it("prefers the junit file when present", async () => {
     const root = await fs.mkdtemp(path.join(os.tmpdir(), "suite-"));
     const run = await runTestSuite(
-      { command: `printf '<testsuites tests="7" failures="0" time="2"/>' > j.xml`, junitPath: "j.xml" },
+      { command: `printf '<testsuites tests="7" failures="0" time="2"/>' > j.xml`, junitPatterns: ["j.xml"] },
       root,
     );
     expect(run.card).toMatchObject({ exitCode: 0, tests: 7, durationSeconds: 2 });
+  });
+
+  it("sums the reports a suite recorded elsewhere and fails on failures or missing reports", async () => {
+    const root = await fs.mkdtemp(path.join(os.tmpdir(), "suite-"));
+    await fs.mkdir(path.join(root, "results", "bats-unit"), { recursive: true });
+    await fs.mkdir(path.join(root, "results", "shard-diagnostics"), { recursive: true });
+    await fs.writeFile(path.join(root, "results", "bats-unit", "report.xml"), '<testsuites tests="4" time="1"/>');
+    await fs.writeFile(path.join(root, "results", "pytest-unit.xml"), '<testsuites tests="6" failures="0" time="2"/>');
+    await fs.writeFile(path.join(root, "results", "shard-diagnostics", "pytest-unit.xml"), '<testsuites tests="6"/>');
+    const passing = await runTestSuite(
+      { junitPatterns: ["results/bats-*/report.xml", "results/pytest-unit.xml"], label: "tradicional" },
+      root,
+    );
+    expect(passing.card).toMatchObject({ exitCode: 0, tests: 10, failures: 0, durationSeconds: 3 });
+    expect(passing.output).toContain("2 relatórios JUnit");
+
+    await fs.writeFile(path.join(root, "results", "pytest-unit.xml"), '<testsuites tests="6" failures="1"/>');
+    const failing = await runTestSuite({ junitPatterns: ["results/pytest-unit.xml"] }, root);
+    expect(failing.card).toMatchObject({ exitCode: 1, tests: 6, failures: 1 });
+
+    const missing = await runTestSuite({ junitPatterns: ["nowhere/*.xml"] }, root);
+    expect(missing.card.exitCode).toBe(1);
+    expect(missing.card.tests).toBeUndefined();
   });
 });

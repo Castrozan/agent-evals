@@ -69,6 +69,10 @@ Subject and judge sessions inherit your shell's environment except `CLAUDECODE`.
 session whose hooks or settings react to session variables, list those under `sujeito.ambiente_removido`
 (`subject.removed_environment`). Otherwise the subject behaves like your interactive session instead of a fresh one.
 
+`testes` puts the repository's ordinary test suite on the same page. Declare `suite_de_testes` (`test_suite`) with a
+`comando` to run, or with only `junit` globs to read results a CI job already recorded; counts from every matched file
+are summed, and no matched report, a failure or an error fails the card.
+
 Sessions that write run inside an OS sandbox: only the staged session is writable, the rest of the machine is read-only,
 and `sudo` cannot escalate. On Linux this needs `bubblewrap`, and Claude also needs `socat`; the Nix package puts both on
 `PATH`. Without them, those cases fail as instrument errors instead of running unconfined.
