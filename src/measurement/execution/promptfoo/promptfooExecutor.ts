@@ -1,6 +1,6 @@
 import { spawn } from "node:child_process";
 import { readFileSync } from "node:fs";
-import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
+import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { caseKey } from "../../../domain/cases.js";
@@ -9,6 +9,7 @@ import { sampleFilePath, type JobFile } from "./jobSample.js";
 import { readSamples } from "./promptfooResults.js";
 import type { ModelCaseExecutor, ModelExecutionOptions, ModelSampleRequest } from "../run/modelCaseExecutor.js";
 import { instrumentFailureSample, type SampleSettings } from "../samples/sampleRuntime.js";
+import { SCRATCH_ROOT_VARIABLE } from "../../runtime/scratch.js";
 
 export const PROMPTFOO_BINARY_VARIABLE = "AGENT_EVALS_PROMPTFOO";
 const INSTALL_HINT =
@@ -21,14 +22,14 @@ interface ChildOutcome {
   missing: boolean;
 }
 
-function runChild(binary: string, args: string[], stateDirectory?: string): Promise<ChildOutcome> {
+function runChild(binary: string, args: string[], childEnvironment: NodeJS.ProcessEnv = {}): Promise<ChildOutcome> {
   return new Promise((resolve) => {
     const child = spawn(binary, args, {
       env: {
         ...process.env,
         PROMPTFOO_DISABLE_TELEMETRY: "1",
         PROMPTFOO_DISABLE_UPDATE: "1",
-        ...(stateDirectory === undefined ? {} : { PROMPTFOO_CONFIG_DIR: stateDirectory }),
+        ...childEnvironment,
       },
       stdio: ["ignore", "pipe", "pipe"],
     });
@@ -111,6 +112,8 @@ async function runChunk(
     const jobFilePath = path.join(directory, "job.json");
     const configPath = path.join(directory, "promptfooconfig.json");
     const resultsPath = path.join(directory, "results.json");
+    const scratchRoot = path.join(directory, "scratch");
+    await mkdir(scratchRoot);
     const job: JobFile = {
       settings,
       requests: [...requests],
@@ -125,7 +128,7 @@ async function runChunk(
     const outcome = await runChild(
       binary,
       ["eval", "-c", configPath, "--output", resultsPath, "--no-cache", "--no-table"],
-      path.join(directory, "state"),
+      { PROMPTFOO_CONFIG_DIR: path.join(directory, "state"), [SCRATCH_ROOT_VARIABLE]: scratchRoot },
     );
     const resultsContent = await readFile(resultsPath, "utf8").catch(() => undefined);
     const missingMessage =

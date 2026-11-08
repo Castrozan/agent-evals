@@ -1,5 +1,4 @@
-import { mkdir, mkdtemp, rm } from "node:fs/promises";
-import os from "node:os";
+import { mkdir, rm } from "node:fs/promises";
 import path from "node:path";
 import { globSync } from "tinyglobby";
 import { execFile } from "node:child_process";
@@ -7,6 +6,7 @@ import { promisify } from "node:util";
 import type { RepositorySource } from "../../../domain/cases.js";
 import { runGit } from "./git.js";
 import { StagingError } from "../stagingError.js";
+import { createScratchDirectory } from "../../runtime/scratch.js";
 
 const execFileAsync = promisify(execFile);
 
@@ -28,7 +28,7 @@ async function fetchRemoteCommit(destination: string, source: RepositorySource):
 }
 
 async function archiveEvaluatedRepository(destination: string, source: RepositorySource, sourceRoot: string) {
-  const scratch = await mkdtemp(path.join(os.tmpdir(), "agent-evals-archive-"));
+  const scratch = await createScratchDirectory("agent-evals-archive-");
   const archivePath = path.join(scratch, "tree.tar");
   try {
     await runGit(sourceRoot, ["archive", "--format=tar", "--output", archivePath, source.revision]);

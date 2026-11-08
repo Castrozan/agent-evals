@@ -1,5 +1,4 @@
-import { mkdir, mkdtemp, rm } from "node:fs/promises";
-import os from "node:os";
+import { mkdir, rm } from "node:fs/promises";
 import path from "node:path";
 import { callsModel, type EnvironmentDeclaration, type PluginDeclaration } from "../../domain/cases.js";
 import type { SessionStager, StagedSession, StagingRequest } from "../../domain/ports.js";
@@ -13,6 +12,7 @@ import { isInside, resolveInside } from "./pathSafety.js";
 import { assemblePlugin, pluginName } from "./plugins/pluginAssembler.js";
 import { installSkills } from "./skillInstaller.js";
 import { StagingError } from "./stagingError.js";
+import { createScratchDirectory } from "../runtime/scratch.js";
 
 const EMPTY_ENVIRONMENT: EnvironmentDeclaration = {
   git: false,
@@ -70,8 +70,8 @@ export const sessionStager: SessionStager = {
     if (client === "opencode" && casePlugins.length + request.variantPlugins.length > 0) {
       throw new StagingError("O cliente opencode não aceita casos com plugins.");
     }
-    const root = await mkdtemp(path.join(os.tmpdir(), "agent-evals-session-"));
-    const pluginsRoot = await mkdtemp(path.join(os.tmpdir(), "agent-evals-plugins-"));
+    const root = await createScratchDirectory("agent-evals-session-");
+    const pluginsRoot = await createScratchDirectory("agent-evals-plugins-");
     let subjectHome: SubjectHome | undefined;
     const dispose = async () => {
       for (const directory of [root, pluginsRoot]) await rm(directory, { recursive: true, force: true });

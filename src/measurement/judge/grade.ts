@@ -1,9 +1,9 @@
-import { mkdtemp, rm } from "node:fs/promises";
-import os from "node:os";
+import { rm } from "node:fs/promises";
 import path from "node:path";
 import type { SubjectClient } from "../../domain/ports.js";
 import type { InstrumentFailure } from "../../domain/results.js";
 import { buildJudgePrompt, parseJudgeVerdict, type JudgeInput, type JudgeVerdict } from "./prompt.js";
+import { createScratchDirectory } from "../runtime/scratch.js";
 
 export interface JudgeSettings {
   client: SubjectClient;
@@ -21,7 +21,7 @@ export interface GradeResult {
 export type Grader = (input: JudgeInput) => Promise<GradeResult>;
 
 export async function grade(settings: JudgeSettings, input: JudgeInput): Promise<GradeResult> {
-  const workingDirectory = await mkdtemp(path.join(os.tmpdir(), "agent-evals-judge-"));
+  const workingDirectory = await createScratchDirectory("agent-evals-judge-");
   try {
     const transcript = await settings.client.run({
       client: settings.client.client,

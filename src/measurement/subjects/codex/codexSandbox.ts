@@ -1,10 +1,11 @@
 import { execFileSync } from "node:child_process";
 import { existsSync } from "node:fs";
-import { chmod, mkdtemp, rm, writeFile } from "node:fs/promises";
+import { chmod, rm, writeFile } from "node:fs/promises";
 import { createRequire } from "node:module";
 import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { createScratchDirectory } from "../../runtime/scratch.js";
 
 const LINUX_CODEX_PACKAGES: Record<string, { triple: string; packageName: string }> = {
   x64: { triple: "x86_64-unknown-linux-musl", packageName: "@openai/codex-linux-x64" },
@@ -89,7 +90,7 @@ export async function sandboxCodex(request: CodexSandboxRequest): Promise<Sandbo
   const command: CodexCommand = request.usesPathCodex
     ? { executable: "codex", pathDirectories: [] }
     : bundledCodexCommand();
-  const wrapperDirectory = await mkdtemp(path.join(os.tmpdir(), "agent-evals-codex-sandbox-"));
+  const wrapperDirectory = await createScratchDirectory("agent-evals-codex-sandbox-");
   const privateTemporary = path.join(wrapperDirectory, "tmp");
   const binary = path.join(wrapperDirectory, "codex");
   const pathPrefix = command.pathDirectories.map((directory) => `${shellQuote(directory)}:`).join("");

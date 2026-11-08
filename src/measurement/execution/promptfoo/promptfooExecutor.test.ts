@@ -1,3 +1,4 @@
+import { existsSync } from "node:fs";
 import { chmod, mkdtemp, readFile, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
@@ -5,6 +6,7 @@ import { afterEach, describe, expect, it } from "vitest";
 import type { InstructionCase } from "../../../domain/cases.js";
 import { makeCase, makeConfig } from "../../../evidence/verdict/__fixtures__/builders.js";
 import { createPromptfooExecutor, PROMPTFOO_BINARY_VARIABLE } from "./promptfooExecutor.js";
+import { SCRATCH_ROOT_VARIABLE } from "../../runtime/scratch.js";
 
 async function fakePromptfoo(script: string): Promise<{ binary: string; log: string }> {
   const directory = await mkdtemp(path.join(os.tmpdir(), "fake-promptfoo-"));
@@ -79,5 +81,24 @@ describe("promptfoo executor", () => {
 
     expect((await readFile(log, "utf8")).trim().split("\n")).toHaveLength(3);
     expect(samples.every((sample) => sample.passed && sample.instrumentFailure === undefined)).toBe(true);
+  });
+  it("removes the sessions a crashed promptfoo run left in its scratch root", async () => {
+    const { binary, log } = await fakePromptfoo(
+      [
+        'if [ "$1" = "--version" ]; then echo 0.118.14; exit 0; fi',
+        `mkdir "$${SCRATCH_ROOT_VARIABLE}/agent-evals-session-orphan" || exit 1`,
+        `echo "$${SCRATCH_ROOT_VARIABLE}/agent-evals-session-orphan" >> "$LOG"`,
+        "exit 134",
+      ].join("\n"),
+    );
+    process.env[PROMPTFOO_BINARY_VARIABLE] = binary;
+    const evalCase = makeCase("categoria", "caso") as InstructionCase;
+    const executor = createPromptfooExecutor({ compositionModuleUrl: "file:///nowhere.js" });
+
+    await executor.execute(settings, [{ evalCase, repetition: 1, control: false }], { concurrency: 1 });
+
+    const orphans = (await readFile(log, "utf8")).trim().split("\n");
+    expect(orphans).toHaveLength(3);
+    expect(orphans.some((orphan) => existsSync(orphan))).toBe(false);
   });
 });
