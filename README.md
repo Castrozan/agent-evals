@@ -29,7 +29,7 @@ Commands, flags and config keys are Portuguese, and each one also accepts its En
 
 | Command                             | What it does                                                                                  | Calls a model       |
 | ----------------------------------- | --------------------------------------------------------------------------------------------- | ------------------- |
-| `run`                               | runs the suite and publishes the report                                                       | yes                 |
+| `run [--relatorio <path>]`          | runs the suite and publishes the report, at `<path>` when given; exits 1 when invalid         | yes                 |
 | `baseline [--rodar]`                | records the last run as baseline; `--rodar` runs first                                        | only with `--rodar` |
 | `check [--gravado]`                 | verdict over the committed baseline; `--gravado` reports stale or missing evidence as notices | no                  |
 | `check-instructions`                | frontmatter, description length and broken links                                              | no                  |

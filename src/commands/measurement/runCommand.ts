@@ -166,10 +166,29 @@ export function addRunOptions(command: Command): Command {
     .option("--seco", "mostra o plano sem chamar modelo");
 }
 
+const INVALID_MEASUREMENT_EXIT_CODE = 1;
+
+interface RunCommandOptions extends RunOptions {
+  relatorio?: string;
+}
+
+export function contextWritingReportTo(context: ProjectContext, reportPath: string | undefined): ProjectContext {
+  if (reportPath === undefined) return context;
+  return { ...context, config: { ...context.config, reportPath: path.resolve(reportPath) } };
+}
+
+export function exitCodeForRun(record: RunRecord | undefined): number {
+  return record?.invalid ? INVALID_MEASUREMENT_EXIT_CODE : 0;
+}
+
 export function registerRunCommand(program: Command): void {
-  addRunOptions(program.command("run").description("roda a suíte e publica o relatório")).action(
-    async (options: RunOptions) => {
-      await performRun(loadProjectContext(), options);
-    },
-  );
+  addRunOptions(program.command("run").description("roda a suíte e publica o relatório"))
+    .option(
+      "--relatorio <caminho>",
+      "grava relatório, JSON, selo e execução neste caminho em vez do declarado no config",
+    )
+    .action(async (options: RunCommandOptions) => {
+      const record = await performRun(contextWritingReportTo(loadProjectContext(), options.relatorio), options);
+      process.exitCode = exitCodeForRun(record);
+    });
 }
